@@ -24,6 +24,9 @@ app:
   cors:
     allowed-origins:
       - http://localhost:5173
+  init-data:
+    # 개발용 샘플 계정 비밀번호. README에 적혀 있다.
+    password: password123
   jwt:
     # 개발 기본값. 배포 환경에서는 APP_JWT_SECRET 환경변수로 덮어쓴다.
     secret: ${APP_JWT_SECRET:loopro-local-development-signing-key-change-me}

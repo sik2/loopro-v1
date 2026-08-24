@@ -6,9 +6,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +27,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
 
-	@Lob
+	/**
+	 * 긴 텍스트. {@code @Lob}을 쓰면 PostgreSQL에서 oid(large object) 컬럼으로 떨어져
+	 * 트랜잭션 밖 읽기가 깨진다. LONGVARCHAR로 못 박으면 PostgreSQL은 text,
+	 * H2는 VARCHAR가 되어 두 DB에서 같은 뜻이 된다.
+	 */
+	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
 	@Column(nullable = false)
 	private String content;
 

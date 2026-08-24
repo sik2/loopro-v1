@@ -27,9 +27,7 @@ import java.util.List;
 @Slf4j
 public class BaseInitDataService {
 
-	/** 샘플 계정의 공통 비밀번호. 개발용이며 README에 적혀 있다. */
-	private static final String PASSWORD = "password123";
-
+	private final InitDataProperties properties;
 	private final MemberRepository memberRepository;
 	private final PostRepository postRepository;
 	private final CommentRepository commentRepository;
@@ -37,14 +35,23 @@ public class BaseInitDataService {
 
 	@Transactional
 	public void run() {
+		// 비밀번호가 주어지지 않으면 만들지 않는다. 알려진 비밀번호를 가진 계정이
+		// 공개된 서비스에 생기는 것보다 빈 화면이 낫다.
+		if (!properties.hasPassword()) {
+			log.info("샘플 데이터를 건너뜁니다. app.init-data.password가 없습니다.");
+			return;
+		}
+
 		// 한 명이라도 있으면 이미 채워진 DB다. 재시작할 때마다 데이터가 불어나면 안 된다.
 		if (memberRepository.count() > 0) {
 			log.info("샘플 데이터를 건너뜁니다. 이미 Member가 있습니다.");
 			return;
 		}
 
+		String password = properties.password();
+
 		Member admin = memberRepository.save(
-				Member.joinAsAdmin("admin", passwordEncoder.encode(PASSWORD), "관리자"));
+				Member.joinAsAdmin("admin", passwordEncoder.encode(password), "관리자"));
 		Member gureum = joinUser("gureum", "구름");
 		Member baram = joinUser("baram", "바람");
 		Member namu = joinUser("namu", "나무");
@@ -67,11 +74,12 @@ public class BaseInitDataService {
 				Comment.write(admin, posts.get(3), "질문은 댓글로 남겨주세요.")
 		));
 
-		log.info("샘플 데이터를 만들었습니다. Member 5, Post 5, Comment 5. 비밀번호는 모두 {}", PASSWORD);
+		log.info("샘플 데이터를 만들었습니다. Member 5, Post 5, Comment 5.");
 	}
 
 	private Member joinUser(String username, String nickname) {
-		return memberRepository.save(Member.join(username, passwordEncoder.encode(PASSWORD), nickname));
+		return memberRepository.save(
+				Member.join(username, passwordEncoder.encode(properties.password()), nickname));
 	}
 
 	private static final String API_교안 = """

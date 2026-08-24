@@ -1,0 +1,12 @@
+.git/
+front-react/
+infra/
+front-kmp/
+docs/
+.scratch/
+.claude/
+back/build/
+back/.gradle/
+*.mv.db
+*.trace.db
+*.md

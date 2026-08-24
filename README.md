@@ -2,6 +2,13 @@
 
 블로그 기능을 기반으로 **콘텐츠**를 작성·공유하는 플랫폼.
 
+| | 주소 |
+| --- | --- |
+| 웹 | <https://loopro-v1.pages.dev> |
+| API | <https://back-production-42a6.up.railway.app> |
+
+배포 방법과 환경변수는 [docs/deploy.md](docs/deploy.md)에 있다.
+
 도메인 용어는 [CONTEXT.md](CONTEXT.md)에, 되돌리기 어려운 결정은 [docs/adr/](docs/adr/)에 있다.
 
 ## 구성
@@ -41,8 +48,10 @@ cd back && ./gradlew bootRun
 | `namu`   | 나무     | `USER`  |
 | `byeol`  | 별       | `USER`  |
 
-비밀번호는 모두 `password123`이다. `gureum`에게는 비발행 글이 하나 있어서,
-로그인 여부에 따라 목록이 달라지는 것을 바로 확인할 수 있다.
+**로컬 개발 환경에서만** 비밀번호가 `password123`이다. 배포 환경은 `APP_INIT_DATA_PASSWORD`
+환경변수로 받으며, 그 값이 없으면 샘플 데이터를 아예 만들지 않는다.
+
+`gureum`에게는 비발행 글이 하나 있어서, 로그인 여부에 따라 목록이 달라지는 것을 바로 확인할 수 있다.
 
 ### front-react
 

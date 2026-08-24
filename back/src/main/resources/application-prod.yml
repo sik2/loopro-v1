@@ -1,0 +1,47 @@
+# 배포 프로파일. 값은 하나도 파일에 두지 않고 전부 환경변수로 받는다 —
+# 이 파일은 public 저장소에 있다.
+spring:
+  datasource:
+    url: ${DATABASE_JDBC_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      # Railway의 사설 네트워크는 컨테이너가 뜨고 몇 초 뒤에 붙는다.
+      # 기본값(1ms)이면 첫 연결 실패로 앱이 죽고 재시작 루프에 빠진다.
+      initialization-fail-timeout: 60000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  h2:
+    console:
+      enabled: false
+
+server:
+  # Railway가 주입하는 포트에 붙어야 한다. 8080에 고정하면 라우팅이 안 된다.
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+
+# 운영에서는 API 문서를 열지 않는다.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+app:
+  cors:
+    # 쉼표로 구분한 목록. 배포된 front의 주소만 들어간다.
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS}
+  jwt:
+    # 기본값 없음. 없으면 앱이 아예 뜨지 않는다 — 조용히 약한 키로 뜨는 것보다 낫다.
+    secret: ${APP_JWT_SECRET}
+    expiration: 7d
+  init-data:
+    # 없으면 샘플 데이터를 만들지 않는다. 기본값을 두면 공개된 비밀번호가 되살아난다.
+    password: ${APP_INIT_DATA_PASSWORD:}
+
+logging:
+  level:
+    root: info

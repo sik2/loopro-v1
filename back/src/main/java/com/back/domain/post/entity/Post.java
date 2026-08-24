@@ -65,6 +65,24 @@ public class Post extends BaseEntity {
 		return published || (memberId != null && isAuthor(memberId));
 	}
 
+	/**
+	 * 목록 미리보기에 쓸 본문 앞부분. <b>마크다운 원문을 그대로 잘라서</b> 준다.
+	 *
+	 * <p>여기서 `#`이나 코드 울타리를 걷어내면 그게 곧 마크다운 해석이다.
+	 * back은 해석하지 않는다(ADR-0003) — 기호를 벗기는 일은 그리는 쪽의 몫이다.
+	 * 이 메서드가 하는 일은 문자열 자르기뿐이다.
+	 *
+	 * <p>글자 수는 코드 포인트로 센다. char로 자르면 이모지 같은 서로게이트 쌍이
+	 * 반토막 나서 깨진 문자가 남는다.
+	 */
+	public String excerpt(int maxLength) {
+		int length = content.codePointCount(0, content.length());
+		if (length <= maxLength) {
+			return content;
+		}
+		return content.substring(0, content.offsetByCodePoints(0, maxLength));
+	}
+
 	/** 상세를 열 때마다 무조건 1 올린다. 그래서 상세 조회가 쓰기 트랜잭션이 된다. */
 	public void increaseViewCount() {
 		this.viewCount++;

@@ -4,6 +4,8 @@ import type { Page } from '@/lib/page'
 export type PostListItem = {
   id: number
   title: string
+  /** 본문 앞부분. 마크다운 원문 그대로다 — 기호를 벗기는 일은 화면이 한다. */
+  excerpt: string
   authorNickname: string
   createDate: string
   viewCount: number

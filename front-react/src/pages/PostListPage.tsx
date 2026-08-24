@@ -1,19 +1,16 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { fetchPostList, type PostListItem } from '@/api/posts'
-import { PostMeta } from '@/components/post/PostMeta'
+import { useSearchParams } from 'react-router-dom'
+import { fetchPostList } from '@/api/posts'
+import { PostCard } from '@/components/post/PostCard'
 import { QueryState } from '@/components/QueryState'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { formatDateTime } from '@/lib/date'
-import { paths } from '@/routes/paths'
 
 const PAGE_SIZE = 10
 
 /**
- * 목록은 "무엇을 읽을지 고르는" 화면이다. 박스를 겹겹이 두르면 스크롤할 때
- * 테두리를 세게 되므로, 얇은 구분선만 두고 제목이 무게를 다 갖게 한다.
+ * 목록은 "무엇을 읽을지 고르는" 화면이다. 제목만으로는 고르기 어려워서
+ * 카드마다 본문 앞부분을 두 줄 함께 보여준다.
  */
 export function PostListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -26,7 +23,7 @@ export function PostListPage() {
   })
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-8">
       <header className="flex items-baseline justify-between gap-4">
         <h1 className="text-[26px] font-semibold tracking-tight">글</h1>
         {data && (
@@ -36,12 +33,14 @@ export function PostListPage() {
 
       <QueryState isPending={isPending} error={error}>
         {data && data.items.length === 0 ? (
-          <p className="py-20 text-center text-sm text-muted-foreground">아직 글이 없습니다.</p>
+          <p className="rounded-xl border border-dashed border-border py-20 text-center text-sm text-muted-foreground">
+            아직 글이 없습니다.
+          </p>
         ) : (
-          <ul className="-mx-3 flex flex-col">
+          <ul className="flex flex-col gap-4">
             {data?.items.map((post) => (
-              <li key={post.id} className="border-b border-border last:border-b-0">
-                <PostRow post={post} />
+              <li key={post.id}>
+                <PostCard post={post} />
               </li>
             ))}
           </ul>
@@ -59,33 +58,6 @@ export function PostListPage() {
   )
 }
 
-function PostRow({ post }: { post: PostListItem }) {
-  return (
-    <Link
-      to={paths.postDetail(post.id)}
-      className="block rounded-lg px-3 py-5 transition-colors hover:bg-accent"
-    >
-      <div className="flex items-start gap-3">
-        <h2 className="text-[17px] leading-7 font-semibold text-balance">{post.title}</h2>
-        {!post.published && <Badge className="mt-1 shrink-0">비발행</Badge>}
-      </div>
-
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[13px]">
-        <span className="font-medium">{post.authorNickname}</span>
-        <span className="text-muted-foreground/60">·</span>
-        <span className="text-muted-foreground">{formatDateTime(post.createDate)}</span>
-
-        <PostMeta
-          className="ml-auto"
-          viewCount={post.viewCount}
-          likeCount={post.likeCount}
-          commentCount={post.commentCount}
-        />
-      </div>
-    </Link>
-  )
-}
-
 function Pagination({
   page,
   totalPages,
@@ -96,7 +68,7 @@ function Pagination({
   onChange: (page: number) => void
 }) {
   return (
-    <nav className="flex items-center justify-center gap-2">
+    <nav className="flex items-center justify-center gap-2 pt-2">
       <Button
         variant="ghost"
         size="icon"

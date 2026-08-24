@@ -4,8 +4,8 @@
 
 | | 주소 |
 | --- | --- |
-| 웹 | <https://loopro-v1.pages.dev> |
-| API | <https://back-production-42a6.up.railway.app> |
+| 웹 | <https://www.loopro.kr> |
+| API | <https://api.loopro.kr> |
 
 배포 방법과 환경변수는 [docs/deploy.md](docs/deploy.md)에 있다.
 

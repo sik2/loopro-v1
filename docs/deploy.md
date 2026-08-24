@@ -2,9 +2,36 @@
 
 | | 어디 | 주소 |
 | --- | --- | --- |
-| `front-react` | Cloudflare Pages | <https://loopro-v1.pages.dev> |
-| `back` | Railway | <https://back-production-42a6.up.railway.app> |
+| `front-react` | Cloudflare Pages | <https://www.loopro.kr> |
+| `back` | Railway | <https://api.loopro.kr> |
 | DB | Railway Postgres | 사설 네트워크로만 접근 |
+
+플랫폼이 준 원래 주소도 계속 살아 있다 — <https://loopro-v1.pages.dev>,
+<https://back-production-42a6.up.railway.app>. 커스텀 도메인이 깨졌을 때
+확인용으로 쓴다.
+
+## 도메인
+
+`loopro.kr`은 가비아에서 사고 DNS는 **DNSZi**에 둔다. 네임서버를 Cloudflare로
+옮기지 않았기 때문에 **루트 도메인을 Pages에 바로 붙일 수 없다** — Cloudflare Pages는
+외부 DNS로는 서브도메인만 받는다. 그래서 `www`가 대표 주소이고, 루트는 웹 포워딩으로
+`www`에 넘긴다.
+
+| 종류 | 호스트 | 값 | 하는 일 |
+| --- | --- | --- | --- |
+| CNAME | `www` | `loopro-v1.pages.dev` | 웹 |
+| CNAME | `api` | `7hz3ram1.up.railway.app` | API |
+| TXT | `_railway-verify.api` | Railway가 발급한 토큰 | 도메인 소유 증명. 이게 있어야 Railway가 https 인증서를 낸다 |
+| 웹 포워딩 | (루트) | `https://www.loopro.kr` | 주소이동형(영구이동-상세) |
+
+Railway 쪽은 CLI로 붙인다: `railway domain api.loopro.kr --service back`.
+필요한 DNS 값은 `railway domain status api.loopro.kr`이 알려준다.
+
+Pages 쪽은 **반드시 대시보드에서 커스텀 도메인을 먼저 등록한 뒤** CNAME을 넣어야 한다.
+순서가 반대면 522가 뜬다. wrangler에는 이 명령이 없다.
+
+DNSZi는 저장 즉시가 아니라 배치로 반영한다. 안 보이면 존 시리얼을 보면 된다 —
+저장될 때마다 올라간다: `dig +short SOA loopro.kr @ns11.dnszi.com`.
 
 배포 판단의 근거는 [ADR-0004](adr/0004-배포-환경은-설정을-파일이-아니라-환경변수로-받는다.md)와 [ADR-0005](adr/0005-배포-이미지를-Dockerfile로-고정한다.md)에 있다.
 
@@ -33,6 +60,10 @@
 `${{Postgres.*}}`는 Railway의 변수 참조다. DB 접속 정보를 복사해 두지 않고 Postgres 서비스에서 그때그때 읽어오므로, 비밀번호가 바뀌어도 따라간다.
 
 front는 빌드 시점에 `VITE_API_BASE_URL`이 번들에 박힌다. `front-react/.env.production`에 있고, 비밀이 아니다 — 브라우저가 어차피 호출하는 공개 주소다.
+
+**도메인을 바꿀 때는 순서가 있다.** API 인증서가 나오기 전에 `VITE_API_BASE_URL`을 새
+주소로 바꾸면 사이트 전체가 죽는다 — https 페이지가 인증서 없는 https API를 부르면
+브라우저가 요청 자체를 차단한다. 인증서 발급을 확인한 뒤에 바꾼다.
 
 ## 다시 배포하기
 
@@ -63,8 +94,8 @@ cd front-react && npm run build && npx wrangler pages deploy dist --project-name
 배포가 끝나면 이 네 가지가 맞아야 한다.
 
 ```bash
-API=https://back-production-42a6.up.railway.app
-WEB=https://loopro-v1.pages.dev
+API=https://api.loopro.kr
+WEB=https://www.loopro.kr
 
 # 1. API가 응답한다
 curl -s -o /dev/null -w '%{http_code}\n' $API/api/posts                    # 200
@@ -91,3 +122,4 @@ curl -s -o /dev/null -w '%{http_code}\n' $WEB/p/1                          # 200
 - **`ddl-auto: update`로 스키마를 맞춘다.** 컬럼을 지우거나 타입을 바꾸는 변경은 반영되지 않는다. 스키마가 흔들리기 시작하면 마이그레이션 도구가 필요하고, 그때 이 문서를 다시 연다.
 - **샘플 데이터가 운영 DB에 들어 있다.** 첫 배포에서 만들어졌다. 실제로 쓰기 시작하면 지워야 한다.
 - **`Post` 본문은 `@Lob`이 아니라 `LONGVARCHAR`로 매핑한다.** `@Lob`은 PostgreSQL에서 oid(large object) 컬럼이 되어 트랜잭션 밖 읽기가 깨진다. 이 매핑이면 PostgreSQL은 `text`, H2는 `VARCHAR`가 되어 두 DB에서 같은 뜻이다.
+- **루트 도메인(`loopro.kr`)에는 https가 없다.** DNSZi의 웹 포워딩은 HTTP 리디렉션이라 루트에 인증서가 붙지 않는다. 공유·표기는 `www.loopro.kr`을 쓴다. 루트도 https로 열려면 네임서버를 Cloudflare로 옮겨야 하고, 그러면 DNS 전체가 함께 이동한다.

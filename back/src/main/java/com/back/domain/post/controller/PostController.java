@@ -13,8 +13,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
-@Tag(name = "Post", description = "글 목록·상세·작성")
+@Tag(name = "Post", description = "글 목록·상세·작성·수정·삭제")
 public class PostController {
 
 	private final PostService postService;
@@ -38,13 +38,13 @@ public class PostController {
 			@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "10") int size
 	) {
-		return PageDto.of(postService.getList(page, size).map(PostListItemDto::from));
+		return postService.getList(page, size);
 	}
 
 	@GetMapping("/{id}")
 	@Operation(summary = "글 상세", description = "열 때마다 ViewCount가 1 오른다.")
 	public PostDetailDto detail(@PathVariable long id) {
-		return PostDetailDto.from(postService.readDetail(id));
+		return postService.readDetail(id);
 	}
 
 	@PostMapping
@@ -54,7 +54,7 @@ public class PostController {
 			@AuthenticationPrincipal MemberPrincipal actor,
 			@Valid @RequestBody PostWriteRequest request
 	) {
-		return PostDetailDto.from(postService.write(actor.id(), request.title(), request.content()));
+		return postService.write(actor, request.title(), request.content());
 	}
 
 	@PutMapping("/{id}")
@@ -64,7 +64,7 @@ public class PostController {
 			@PathVariable long id,
 			@Valid @RequestBody PostUpdateRequest request
 	) {
-		return PostDetailDto.from(postService.modify(actor, id, request.title(), request.content()));
+		return postService.modify(actor, id, request.title(), request.content());
 	}
 
 	@DeleteMapping("/{id}")

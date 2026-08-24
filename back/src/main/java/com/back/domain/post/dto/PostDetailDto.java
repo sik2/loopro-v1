@@ -13,10 +13,11 @@ public record PostDetailDto(
 		String authorNickname,
 		LocalDateTime createDate,
 		LocalDateTime modifyDate,
-		long viewCount
+		long viewCount,
+		long commentCount
 ) {
 
-	public static PostDetailDto from(Post post) {
+	public static PostDetailDto of(Post post, long commentCount) {
 		return new PostDetailDto(
 				post.getId(),
 				post.getTitle(),
@@ -25,7 +26,8 @@ public record PostDetailDto(
 				post.getAuthor().getNickname(),
 				post.getCreateDate(),
 				post.getModifyDate(),
-				post.getViewCount()
+				post.getViewCount(),
+				commentCount
 		);
 	}
 }

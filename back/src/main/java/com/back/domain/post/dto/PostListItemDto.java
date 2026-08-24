@@ -10,16 +10,18 @@ public record PostListItemDto(
 		String title,
 		String authorNickname,
 		LocalDateTime createDate,
-		long viewCount
+		long viewCount,
+		long commentCount
 ) {
 
-	public static PostListItemDto from(Post post) {
+	public static PostListItemDto of(Post post, long commentCount) {
 		return new PostListItemDto(
 				post.getId(),
 				post.getTitle(),
 				post.getAuthor().getNickname(),
 				post.getCreateDate(),
-				post.getViewCount()
+				post.getViewCount(),
+				commentCount
 		);
 	}
 }

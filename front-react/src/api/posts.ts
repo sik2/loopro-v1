@@ -7,6 +7,7 @@ export type PostListItem = {
   authorNickname: string
   createDate: string
   viewCount: number
+  commentCount: number
 }
 
 export type PostDetail = {
@@ -18,6 +19,7 @@ export type PostDetail = {
   createDate: string
   modifyDate: string
   viewCount: number
+  commentCount: number
 }
 
 export type PostWriteRequest = {

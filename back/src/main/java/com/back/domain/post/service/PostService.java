@@ -7,6 +7,7 @@ import com.back.domain.post.dto.PostListItemDto;
 import com.back.domain.post.entity.Post;
 import com.back.domain.post.repository.CommentRepository;
 import com.back.domain.post.repository.IdCount;
+import com.back.domain.post.repository.PostLikeRepository;
 import com.back.domain.post.repository.PostRepository;
 import com.back.global.dto.PageDto;
 import com.back.global.exception.ServiceException;
@@ -20,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -41,19 +42,28 @@ public class PostService {
 
 	private final PostRepository postRepository;
 	private final CommentRepository commentRepository;
+	private final PostLikeRepository postLikeRepository;
 	private final MemberService memberService;
 
 	/** {@code page}는 1부터 시작한다. 범위를 벗어난 값은 가장 가까운 유효값으로 맞춘다. */
 	@Transactional(readOnly = true)
-	public PageDto<PostListItemDto> getList(int page, int size) {
+	public PageDto<PostListItemDto> getList(int page, int size, MemberPrincipal viewer) {
 		int pageIndex = Math.max(page, 1) - 1;
 		int pageSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
 
 		Page<Post> posts = postRepository.findAllBy(PageRequest.of(pageIndex, pageSize, LATEST_FIRST));
 		List<Long> postIds = posts.map(Post::getId).toList();
-		Map<Long, Long> commentCounts = countMap(commentRepository.countByPostIds(postIds));
 
-		return PageDto.of(posts.map(post -> PostListItemDto.of(post, commentCounts.getOrDefault(post.getId(), 0L))));
+		Map<Long, Long> commentCounts = countMap(commentRepository.countByPostIds(postIds));
+		Map<Long, Long> likeCounts = countMap(postLikeRepository.countByPostIds(postIds));
+		Set<Long> likedByViewer = likedPostIds(viewer, postIds);
+
+		return PageDto.of(posts.map(post -> PostListItemDto.of(
+				post,
+				commentCounts.getOrDefault(post.getId(), 0L),
+				likeCounts.getOrDefault(post.getId(), 0L),
+				likedByViewer.contains(post.getId())
+		)));
 	}
 
 	/**
@@ -61,16 +71,16 @@ public class PostService {
 	 * 트래픽이 늘면 가장 먼저 문제가 될 지점이다.
 	 */
 	@Transactional
-	public PostDetailDto readDetail(long id) {
+	public PostDetailDto readDetail(long id, MemberPrincipal viewer) {
 		Post post = findById(id);
 		post.increaseViewCount();
-		return toDetail(post);
+		return toDetail(post, viewer);
 	}
 
 	@Transactional
 	public PostDetailDto write(MemberPrincipal actor, String title, String content) {
 		Member author = memberService.findById(actor.id());
-		return toDetail(postRepository.save(Post.write(author, title, content)));
+		return toDetail(postRepository.save(Post.write(author, title, content)), actor);
 	}
 
 	/** 수정은 작성자 본인만 가능하다. ADMIN도 남의 글은 수정할 수 없다 — 삭제는 관리지만 수정은 위조다. */
@@ -83,7 +93,7 @@ public class PostService {
 		}
 
 		post.update(title, content);
-		return toDetail(post);
+		return toDetail(post, actor);
 	}
 
 	/** 삭제는 작성자 본인과 ADMIN이 할 수 있다. */
@@ -104,8 +114,20 @@ public class PostService {
 				.orElseThrow(() -> ServiceException.notFound("존재하지 않는 Post입니다."));
 	}
 
-	private PostDetailDto toDetail(Post post) {
-		return PostDetailDto.of(post, commentRepository.countByPost_Id(post.getId()));
+	private PostDetailDto toDetail(Post post, MemberPrincipal viewer) {
+		return PostDetailDto.of(
+				post,
+				commentRepository.countByPost_Id(post.getId()),
+				postLikeRepository.countByPost_Id(post.getId()),
+				viewer != null && postLikeRepository.existsByPost_IdAndMember_Id(post.getId(), viewer.id())
+		);
+	}
+
+	private Set<Long> likedPostIds(MemberPrincipal viewer, List<Long> postIds) {
+		if (viewer == null || postIds.isEmpty()) {
+			return Set.of();
+		}
+		return Set.copyOf(postLikeRepository.findLikedPostIds(viewer.id(), postIds));
 	}
 
 	private Map<Long, Long> countMap(List<IdCount> counts) {

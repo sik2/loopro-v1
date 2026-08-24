@@ -35,7 +35,7 @@ export function PostListPage() {
                   <p className="font-medium">{post.title}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {post.authorNickname} · {formatDate(post.createDate)} · 조회 {post.viewCount} · 댓글{' '}
-                    {post.commentCount}
+                    {post.commentCount} · 추천 {post.likeCount}
                   </p>
                 </Link>
               </li>

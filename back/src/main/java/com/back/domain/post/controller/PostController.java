@@ -4,6 +4,7 @@ import com.back.domain.post.dto.PostDetailDto;
 import com.back.domain.post.dto.PostListItemDto;
 import com.back.domain.post.dto.PostUpdateRequest;
 import com.back.domain.post.dto.PostWriteRequest;
+import com.back.domain.post.service.PostLikeService;
 import com.back.domain.post.service.PostService;
 import com.back.global.dto.PageDto;
 import com.back.global.security.MemberPrincipal;
@@ -31,20 +32,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
 	private final PostService postService;
+	private final PostLikeService postLikeService;
 
 	@GetMapping
 	@Operation(summary = "글 목록", description = "최신순 고정. page는 1부터 시작한다.")
 	public PageDto<PostListItemDto> list(
+			@AuthenticationPrincipal MemberPrincipal viewer,
 			@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "10") int size
 	) {
-		return postService.getList(page, size);
+		return postService.getList(page, size, viewer);
 	}
 
 	@GetMapping("/{id}")
 	@Operation(summary = "글 상세", description = "열 때마다 ViewCount가 1 오른다.")
-	public PostDetailDto detail(@PathVariable long id) {
-		return postService.readDetail(id);
+	public PostDetailDto detail(@AuthenticationPrincipal MemberPrincipal viewer, @PathVariable long id) {
+		return postService.readDetail(id, viewer);
 	}
 
 	@PostMapping
@@ -72,5 +75,19 @@ public class PostController {
 	@Operation(summary = "글 삭제", description = "작성자 본인과 ADMIN이 할 수 있다.")
 	public void delete(@AuthenticationPrincipal MemberPrincipal actor, @PathVariable long id) {
 		postService.delete(actor, id);
+	}
+
+	@PutMapping("/{id}/like")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Operation(summary = "글 추천", description = "이미 추천한 글을 다시 추천해도 기록이 늘지 않는다.")
+	public void like(@AuthenticationPrincipal MemberPrincipal actor, @PathVariable long id) {
+		postLikeService.like(actor, id);
+	}
+
+	@DeleteMapping("/{id}/like")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Operation(summary = "글 추천 취소")
+	public void cancelLike(@AuthenticationPrincipal MemberPrincipal actor, @PathVariable long id) {
+		postLikeService.cancel(actor, id);
 	}
 }

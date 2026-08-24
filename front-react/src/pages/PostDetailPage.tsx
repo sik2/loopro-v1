@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { deletePost, fetchPost, type PostDetail } from '@/api/posts'
 import { useAuth } from '@/auth/use-auth'
 import { CommentSection } from '@/components/post/CommentSection'
+import { PostLikeButton } from '@/components/post/PostLikeButton'
 import { Markdown } from '@/components/Markdown'
 import { QueryState } from '@/components/QueryState'
 import { Button } from '@/components/ui/button'
@@ -40,6 +41,10 @@ export function PostDetailPage() {
           </header>
 
           <Markdown>{data.content}</Markdown>
+
+          <div className="flex justify-center border-t pt-6">
+            <PostLikeButton post={data} />
+          </div>
 
           <CommentSection postId={data.id} />
         </article>

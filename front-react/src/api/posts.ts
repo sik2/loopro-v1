@@ -8,6 +8,8 @@ export type PostListItem = {
   createDate: string
   viewCount: number
   commentCount: number
+  likeCount: number
+  likedByMe: boolean
 }
 
 export type PostDetail = {
@@ -20,6 +22,8 @@ export type PostDetail = {
   modifyDate: string
   viewCount: number
   commentCount: number
+  likeCount: number
+  likedByMe: boolean
 }
 
 export type PostWriteRequest = {
@@ -45,4 +49,12 @@ export function updatePost(id: number, request: PostWriteRequest) {
 
 export function deletePost(id: number) {
   return apiFetch<void>(`/api/posts/${id}`, { method: 'DELETE' })
+}
+
+export function likePost(id: number) {
+  return apiFetch<void>(`/api/posts/${id}/like`, { method: 'PUT' })
+}
+
+export function cancelPostLike(id: number) {
+  return apiFetch<void>(`/api/posts/${id}/like`, { method: 'DELETE' })
 }

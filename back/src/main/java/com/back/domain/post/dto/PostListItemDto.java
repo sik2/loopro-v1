@@ -11,17 +11,22 @@ public record PostListItemDto(
 		String authorNickname,
 		LocalDateTime createDate,
 		long viewCount,
-		long commentCount
+		long commentCount,
+		long likeCount,
+		/** 요청이 인증된 경우에만 참일 수 있다. 비로그인 요청에는 항상 거짓이다. */
+		boolean likedByMe
 ) {
 
-	public static PostListItemDto of(Post post, long commentCount) {
+	public static PostListItemDto of(Post post, long commentCount, long likeCount, boolean likedByMe) {
 		return new PostListItemDto(
 				post.getId(),
 				post.getTitle(),
 				post.getAuthor().getNickname(),
 				post.getCreateDate(),
 				post.getViewCount(),
-				commentCount
+				commentCount,
+				likeCount,
+				likedByMe
 		);
 	}
 }

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: back
+  profiles:
+    active: dev
+  jpa:
+    # OSIV를 끈다. 트랜잭션은 서비스의 액션 메서드 레벨에 건다.
+    open-in-view: false
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+app:
+  cors:
+    allowed-origins: []

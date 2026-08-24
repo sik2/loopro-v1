@@ -11,6 +11,9 @@ const PAGE_SIZE = 10
 /**
  * 목록은 "무엇을 읽을지 고르는" 화면이다. 제목만으로는 고르기 어려워서
  * 카드마다 본문 앞부분을 두 줄 함께 보여준다.
+ *
+ * <p>열 수는 900px에서 3열이 된다. `.shell`이 같은 지점에서 넓어지므로
+ * 3열이 되는 순간 카드가 좁아지지 않는다. 폰(640px 미만)은 1열이다.
  */
 export function PostListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -37,7 +40,7 @@ export function PostListPage() {
             아직 글이 없습니다.
           </p>
         ) : (
-          <ul className="flex flex-col gap-4">
+          <ul className="grid grid-cols-1 gap-4 min-[640px]:grid-cols-2 min-[900px]:grid-cols-3">
             {data?.items.map((post) => (
               <li key={post.id}>
                 <PostCard post={post} />

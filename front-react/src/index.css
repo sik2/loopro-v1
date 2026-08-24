@@ -228,3 +228,39 @@
 .prose-table tbody tr:last-child td {
   border-bottom: 0;
 }
+
+/*
+ * 화면 공통 폭. 고정폭이 아니라 브레이크포인트마다 계단식으로 넓어진다.
+ *
+ * <p>목록은 넓을수록 카드가 잘 들어가고, 헤더·푸터가 같은 폭을 써야 로고와
+ * 카드의 왼쪽 끝이 맞는다. 상세 본문도 같은 폭을 쓴다 — 읽기 폭을 따로
+ * 좁히지 않기로 했다(참고: slog.gg도 목록과 상세가 같은 폭이다).
+ *
+ * <p>900px에서 한 단계 올리는 이유는 그 지점부터 카드를 3열로 놓기 때문이다.
+ * 폭과 열 수가 따로 놀면 3열이 되는 순간 카드가 좁아진다.
+ */
+.shell {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  max-width: 48rem;
+}
+
+@media (min-width: 900px) {
+  .shell {
+    padding-inline: 1.5rem;
+    max-width: 64rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .shell {
+    max-width: 80rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  .shell {
+    max-width: 96rem;
+  }
+}

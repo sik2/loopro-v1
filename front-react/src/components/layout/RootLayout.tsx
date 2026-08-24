@@ -14,12 +14,12 @@ export function RootLayout() {
       <div className="flex min-h-dvh flex-col">
         <Header />
 
-        <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-10 sm:px-6">
+        <main className="shell flex-1 py-10">
           <Outlet />
         </main>
 
         <footer className="mt-16 border-t border-border">
-          <div className="mx-auto w-full max-w-3xl px-5 py-8 text-[13px] text-muted-foreground sm:px-6">
+          <div className="shell py-8 text-[13px] text-muted-foreground">
             Loopro — 콘텐츠를 쓰고 나누는 곳
           </div>
         </footer>
@@ -33,15 +33,15 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-header backdrop-blur-xl">
-      <div className="mx-auto flex h-14 w-full max-w-3xl items-center gap-5 px-5 sm:px-6">
+      <div className="shell flex h-14 items-center gap-3 sm:gap-5">
         <Link
           to={paths.postList}
-          className="text-[15px] font-semibold tracking-tight transition-opacity hover:opacity-70"
+          className="shrink-0 text-[15px] font-semibold tracking-tight transition-opacity hover:opacity-70"
         >
           Loopro
         </Link>
 
-        <nav className="flex items-center gap-1 text-[13px]">
+        <nav className="flex shrink-0 items-center gap-1 text-[13px]">
           <HeaderLink to={paths.postList}>글</HeaderLink>
           {member && <HeaderLink to={paths.postWrite}>쓰기</HeaderLink>}
         </nav>
@@ -53,10 +53,11 @@ function Header() {
             <>
               <Link
                 to={paths.me}
-                className="ml-1 flex items-center gap-2 rounded-full py-1 pr-3 pl-1 transition-colors hover:bg-accent"
+                className="ml-1 flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-accent sm:pr-3"
               >
                 <Avatar nickname={member.nickname} className="size-7 text-xs" />
-                <span className="text-[13px] font-medium">{member.nickname}</span>
+                {/* 좁은 화면에서는 아바타만 남긴다. 헤더 항목이 두 줄로 접히는 것보다 낫다. */}
+                <span className="hidden text-[13px] font-medium sm:inline">{member.nickname}</span>
               </Link>
               <Button variant="ghost" size="sm" onClick={logout}>
                 로그아웃
@@ -85,7 +86,7 @@ function HeaderLink({ to, children }: { to: string; children: ReactNode }) {
       end
       className={({ isActive }) =>
         cn(
-          'rounded-md px-2 py-1 transition-colors hover:text-foreground',
+          'rounded-md px-2 py-1 whitespace-nowrap transition-colors hover:text-foreground',
           isActive ? 'font-medium text-foreground' : 'text-muted-foreground',
         )
       }

@@ -34,3 +34,11 @@ export function fetchPost(id: number) {
 export function writePost(request: PostWriteRequest) {
   return apiFetch<PostDetail>('/api/posts', { method: 'POST', body: request })
 }
+
+export function updatePost(id: number, request: PostWriteRequest) {
+  return apiFetch<PostDetail>(`/api/posts/${id}`, { method: 'PUT', body: request })
+}
+
+export function deletePost(id: number) {
+  return apiFetch<void>(`/api/posts/${id}`, { method: 'DELETE' })
+}

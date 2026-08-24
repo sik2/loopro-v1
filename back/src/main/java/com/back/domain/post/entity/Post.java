@@ -44,6 +44,11 @@ public class Post extends BaseEntity {
 		return new Post(title, content, author);
 	}
 
+	public void update(String title, String content) {
+		this.title = title;
+		this.content = content;
+	}
+
 	public boolean isAuthor(Long memberId) {
 		return author.getId().equals(memberId);
 	}

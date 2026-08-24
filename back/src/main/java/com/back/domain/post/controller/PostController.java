@@ -2,6 +2,7 @@ package com.back.domain.post.controller;
 
 import com.back.domain.post.dto.PostDetailDto;
 import com.back.domain.post.dto.PostListItemDto;
+import com.back.domain.post.dto.PostUpdateRequest;
 import com.back.domain.post.dto.PostWriteRequest;
 import com.back.domain.post.service.PostService;
 import com.back.global.dto.PageDto;
@@ -13,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,5 +55,22 @@ public class PostController {
 			@Valid @RequestBody PostWriteRequest request
 	) {
 		return PostDetailDto.from(postService.write(actor.id(), request.title(), request.content()));
+	}
+
+	@PutMapping("/{id}")
+	@Operation(summary = "글 수정", description = "작성자 본인만 할 수 있다. ADMIN도 남의 글은 수정할 수 없다.")
+	public PostDetailDto modify(
+			@AuthenticationPrincipal MemberPrincipal actor,
+			@PathVariable long id,
+			@Valid @RequestBody PostUpdateRequest request
+	) {
+		return PostDetailDto.from(postService.modify(actor, id, request.title(), request.content()));
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Operation(summary = "글 삭제", description = "작성자 본인과 ADMIN이 할 수 있다.")
+	public void delete(@AuthenticationPrincipal MemberPrincipal actor, @PathVariable long id) {
+		postService.delete(actor, id);
 	}
 }

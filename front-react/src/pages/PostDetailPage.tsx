@@ -77,7 +77,7 @@ function PostActions({ post }: { post: PostDetail }) {
   const isAuthor = member.id === post.authorId
   const canDelete = isAuthor || member.role === 'ADMIN'
 
-  if (!isAuthor && !canDelete) return null
+  if (!canDelete) return null
 
   return (
     <div className="ml-auto flex items-center gap-1">

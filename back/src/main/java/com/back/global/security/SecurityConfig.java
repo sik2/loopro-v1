@@ -45,6 +45,8 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						// 개발 프로파일에서만 실제로 존재한다. 다른 프로파일에서는
+						// h2-console과 springdoc이 아예 켜지지 않으므로 열어도 갈 곳이 없다.
 						.requestMatchers("/h2-console/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
 						.permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/members", "/api/auth/login").permitAll()

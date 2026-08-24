@@ -28,10 +28,6 @@ public class ServiceException extends RuntimeException {
 		this.errors = List.copyOf(errors);
 	}
 
-	public static ServiceException badRequest(String message) {
-		return new ServiceException(HttpStatus.BAD_REQUEST, message);
-	}
-
 	public static ServiceException unauthorized(String message) {
 		return new ServiceException(HttpStatus.UNAUTHORIZED, message);
 	}
@@ -42,10 +38,6 @@ public class ServiceException extends RuntimeException {
 
 	public static ServiceException notFound(String message) {
 		return new ServiceException(HttpStatus.NOT_FOUND, message);
-	}
-
-	public static ServiceException conflict(String message) {
-		return new ServiceException(HttpStatus.CONFLICT, message);
 	}
 
 	/** 특정 입력 항목 때문에 거부하는 경우. */

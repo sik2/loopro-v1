@@ -30,10 +30,14 @@ public class Post extends BaseEntity {
 	/** 마크다운 텍스트. back은 해석하지 않는다. 렌더링은 front의 책임이다. */
 	/**
 	 * 긴 텍스트. {@code @Lob}을 쓰면 PostgreSQL에서 oid(large object) 컬럼으로 떨어져
-	 * 트랜잭션 밖 읽기가 깨진다. LONGVARCHAR로 못 박으면 PostgreSQL은 text,
-	 * H2는 VARCHAR가 되어 두 DB에서 같은 뜻이 된다.
+	 * 트랜잭션 밖 읽기가 깨진다.
+	 *
+	 * <p>{@code LONGVARCHAR}는 PostgreSQL에서 {@code varchar(32600)}이 되어
+	 * 3만 자쯤에서 DB가 거절한다. 그러면 사용자에게는 길이 문제가 아니라
+	 * 제약 위반(409)으로 보인다. 길이 제한은 DB가 아니라 입력 검증이 해야 하므로
+	 * 컬럼은 {@code LONG32VARCHAR}(PostgreSQL의 {@code text})로 열어둔다.
 	 */
-	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
+	@JdbcTypeCode(SqlTypes.LONG32VARCHAR)
 	@Column(nullable = false)
 	private String content;
 

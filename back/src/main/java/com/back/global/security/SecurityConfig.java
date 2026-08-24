@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import jakarta.servlet.DispatcherType;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,6 +45,10 @@ public class SecurityConfig {
 				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
+						// 컨트롤러 밖에서 터진 예외는 ERROR 디스패치로 다시 들어온다.
+						// 이걸 막으면 "본문이 깨졌다" 같은 400이 401로 바뀌고,
+						// front가 그 401을 세션 만료로 읽어 로그인한 사람을 쫓아낸다.
+						.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						// 개발 프로파일에서만 실제로 존재한다. 다른 프로파일에서는
 						// h2-console과 springdoc이 아예 켜지지 않으므로 열어도 갈 곳이 없다.

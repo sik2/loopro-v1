@@ -5,7 +5,9 @@ import com.back.domain.member.repository.MemberRepository;
 import com.back.domain.post.repository.CommentLikeRepository;
 import com.back.domain.post.repository.CommentRepository;
 import com.back.domain.post.repository.PostLikeRepository;
+import com.back.global.security.LoginAttemptGuard;
 import com.back.global.security.jwt.JwtProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -43,6 +45,18 @@ public abstract class ApiTestSupport {
 
 	@Autowired
 	protected JwtProvider jwtProvider;
+
+	@Autowired
+	private LoginAttemptGuard loginAttemptGuard;
+
+	/**
+	 * 로그인 실패 카운터는 프로세스에 있어서 트랜잭션 롤백으로 지워지지 않는다.
+	 * 비우지 않으면 앞 테스트의 실패가 쌓여 뒤 테스트가 429로 막힌다.
+	 */
+	@BeforeEach
+	void resetLoginAttempts() {
+		loginAttemptGuard.reset();
+	}
 
 	/**
 	 * 고아 데이터가 남았는지는 HTTP로 관찰할 수 없다. 연쇄 삭제 테스트만

@@ -9,6 +9,7 @@ public record PostUpdateRequest(
 		String title,
 
 		@NotBlank(message = "본문을 입력해 주세요.")
+		@Size(max = 100_000, message = "10만자 이하여야 합니다.")
 		String content,
 
 		/** 수정으로 발행/비발행을 전환한다. */

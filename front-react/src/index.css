@@ -6,38 +6,82 @@
     'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto,
     'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   --font-mono:
-    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    Consolas, ui-monospace, SFMono-Regular, 'SF Mono', Menlo, 'Liberation Mono', monospace;
 
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 }
 
 /*
- * shadcn 방식: 색은 CSS 변수로 두고 Tailwind 유틸리티가 그 변수를 읽는다.
- * 컴포넌트는 헤드리스 프리미티브(Radix) 위에 유틸리티를 조합해 만든다.
+ * 기본은 어두운 화면이다. `.light`가 붙으면 밝은 화면으로 뒤집힌다.
+ * 색은 전부 CSS 변수로 두고 Tailwind 유틸리티가 그 변수를 읽으므로,
+ * 클래스 하나만 토글하면 화면 전체가 따라온다.
  */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --background: #050505;
+  --foreground: #fafafa;
+
+  --surface: #17181b;
+  --surface-hover: #1e2024;
+  --surface-strong: #232428;
+
+  --card: #17181b;
+  --card-foreground: #fafafa;
+
+  --primary: #fafafa;
+  --primary-foreground: #101114;
+  --secondary: #262930;
+  --secondary-foreground: #fafafa;
+  --muted: #1e2024;
+  --muted-foreground: #9aa0a8;
+  --accent: #1e2024;
+  --accent-foreground: #fafafa;
+  --destructive: #f2555a;
+  --destructive-foreground: #fafafa;
+
+  --border: rgb(255 255 255 / 0.1);
+  --input: rgb(255 255 255 / 0.14);
+  --ring: #5b8fd6;
+  --link: #7fa9dd;
+
+  --header: rgb(16 17 20 / 0.8);
+}
+
+:root.light {
+  --background: #fbfbfc;
+  --foreground: #101114;
+
+  --surface: #ffffff;
+  --surface-hover: #f3f4f6;
+  --surface-strong: #eef0f3;
+
+  --card: #ffffff;
+  --card-foreground: #101114;
+
+  --primary: #101114;
+  --primary-foreground: #fafafa;
+  --secondary: #eef0f3;
+  --secondary-foreground: #101114;
+  --muted: #f3f4f6;
+  --muted-foreground: #646b76;
+  --accent: #f3f4f6;
+  --accent-foreground: #101114;
+  --destructive: #d92d33;
+  --destructive-foreground: #ffffff;
+
+  --border: rgb(0 0 0 / 0.1);
+  --input: rgb(0 0 0 / 0.14);
+  --ring: #2f6fb8;
+  --link: #2a63a6;
+
+  --header: rgb(255 255 255 / 0.8);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-strong: var(--surface-strong);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
@@ -53,9 +97,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-link: var(--link);
+  --color-header: var(--header);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
   --radius-lg: var(--radius);
 }
 
@@ -64,10 +110,121 @@
     border-color: var(--color-border);
   }
 
+  html {
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+}
+
+/*
+ * 마크다운 본문.
+ *
+ * 이 블록은 일부러 @layer 밖에 둔다. typography 플러그인이 `.prose`에
+ * 자기 색 변수를 심는데, layer 안에 쓴 규칙은 그 뒤에 오는 layer에 밀린다.
+ * layer 밖의 규칙이 layer 안의 규칙을 이기므로 여기서 확실히 덮어쓴다.
+ */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: var(--muted-foreground);
+  --tw-prose-links: var(--link);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--muted-foreground);
+  --tw-prose-quote-borders: var(--border);
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--surface-strong);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+}
+
+/*
+ * 교안은 오래 읽는 글이다. 본문을 한 단계 키우고 행간을 넓혀,
+ * 목록에서 아낀 예산을 여기에 쓴다.
+ */
+.prose-loopro {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+}
+
+.prose-loopro :is(h1, h2, h3, h4) {
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.prose-loopro h1 {
+  font-size: 1.55em;
+}
+
+.prose-loopro h2 {
+  font-size: 1.28em;
+}
+
+.prose-loopro h3 {
+  font-size: 1.1em;
+}
+
+/* 제목 아래 가로줄 — 긴 교안에서 절이 어디서 끊기는지 보이게 한다. */
+.prose-loopro :is(h1, h2) {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.3em;
+}
+
+.prose-loopro pre {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.82em;
+  line-height: 1.7;
+}
+
+.prose-loopro :not(pre) > code::before,
+.prose-loopro :not(pre) > code::after {
+  content: '';
+}
+
+.prose-loopro :not(pre) > code {
+  background-color: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.35em;
+  font-size: 0.88em;
+  font-weight: 500;
+}
+
+.prose-loopro blockquote {
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* 표는 Markdown 컴포넌트가 스크롤 상자로 감싼다. 여기서는 칸 모양만 정한다. */
+.prose-table thead th {
+  background-color: var(--surface-strong);
+  border-bottom: 1px solid var(--border);
+  padding: 0.6em 0.9em;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.prose-table tbody td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.6em 0.9em;
+}
+
+.prose-table tbody tr:last-child td {
+  border-bottom: 0;
 }

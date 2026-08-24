@@ -13,9 +13,10 @@ import {
 import { useAuth } from '@/auth/use-auth'
 import { LikeButton } from '@/components/post/LikeButton'
 import { QueryState } from '@/components/QueryState'
+import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { formatDate } from '@/lib/date'
+import { formatDateTime } from '@/lib/date'
 import { paths } from '@/routes/paths'
 
 /** 댓글은 별도 화면 없이 글 상세 안에서 다룬다. */
@@ -28,15 +29,17 @@ export function CommentSection({ postId }: { postId: number }) {
   })
 
   return (
-    <section className="flex flex-col gap-4 border-t pt-6">
-      <h2 className="text-lg font-semibold">댓글 {data ? data.length : ''}</h2>
+    <section className="flex flex-col gap-6 border-t border-border pt-8">
+      <h2 className="text-[17px] font-semibold tracking-tight">
+        댓글 {data && <span className="text-muted-foreground tabular-nums">{data.length}</span>}
+      </h2>
 
       {member ? (
         <CommentComposer postId={postId} />
       ) : (
-        <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-border px-4 py-5 text-center text-[13px] text-muted-foreground">
           댓글을 쓰려면{' '}
-          <Link to={paths.login} className="underline underline-offset-4">
+          <Link to={paths.login} className="font-medium text-link underline-offset-4 hover:underline">
             로그인
           </Link>
           하세요.
@@ -45,11 +48,13 @@ export function CommentSection({ postId }: { postId: number }) {
 
       <QueryState isPending={isPending} error={error}>
         {data && data.length === 0 ? (
-          <p className="text-sm text-muted-foreground">아직 댓글이 없습니다.</p>
+          <p className="py-6 text-center text-[13px] text-muted-foreground">아직 댓글이 없습니다.</p>
         ) : (
-          <ul className="flex flex-col divide-y">
+          <ul className="flex flex-col">
             {data?.map((comment) => (
-              <CommentItem key={comment.id} postId={postId} comment={comment} />
+              <li key={comment.id} className="border-b border-border py-5 last:border-b-0">
+                <CommentItem postId={postId} comment={comment} />
+              </li>
             ))}
           </ul>
         )}
@@ -117,61 +122,68 @@ function CommentItem({ postId, comment }: { postId: number; comment: CommentDto 
   const canDelete = isAuthor || member?.role === 'ADMIN'
 
   return (
-    <li className="flex flex-col gap-2 py-4">
-      <div className="flex items-center gap-2 text-sm">
-        <span className="font-medium">{comment.authorNickname}</span>
-        <span className="text-muted-foreground">{formatDate(comment.createDate)}</span>
+    <div className="flex gap-3">
+      <Avatar nickname={comment.authorNickname} className="size-7 text-xs" />
 
-        <span className="ml-auto flex items-center gap-1">
-          {isAuthor && draft === null && (
-            <Button variant="ghost" size="sm" onClick={() => setDraft(comment.content)}>
-              고치기
-            </Button>
-          )}
-          {canDelete && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              disabled={remove.isPending}
-              onClick={() => {
-                if (window.confirm('이 댓글을 지울까요?')) remove.mutate()
-              }}
-            >
-              지우기
-            </Button>
-          )}
-        </span>
-      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex items-center gap-2 text-[13px]">
+          <span className="font-medium">{comment.authorNickname}</span>
+          <span className="text-muted-foreground/60">·</span>
+          <span className="text-muted-foreground">{formatDateTime(comment.createDate)}</span>
 
-      {draft === null ? (
-        <>
-          <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
-          <CommentLikeButton postId={postId} comment={comment} />
-        </>
-      ) : (
-        <div className="flex flex-col items-end gap-2">
-          <Textarea
-            aria-label="댓글 고치기"
-            rows={3}
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-          />
-          <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={() => setDraft(null)}>
-              그만두기
-            </Button>
-            <Button
-              size="sm"
-              disabled={!draft.trim() || update.isPending}
-              onClick={() => update.mutate()}
-            >
-              저장하기
-            </Button>
-          </div>
+          {draft === null && (
+            <span className="ml-auto flex items-center gap-0.5">
+              {isAuthor && (
+                <Button variant="ghost" size="sm" onClick={() => setDraft(comment.content)}>
+                  고치기
+                </Button>
+              )}
+              {canDelete && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hover:bg-destructive/10 hover:text-destructive"
+                  disabled={remove.isPending}
+                  onClick={() => {
+                    if (window.confirm('이 댓글을 지울까요?')) remove.mutate()
+                  }}
+                >
+                  지우기
+                </Button>
+              )}
+            </span>
+          )}
         </div>
-      )}
-    </li>
+
+        {draft === null ? (
+          <>
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+            <CommentLikeButton postId={postId} comment={comment} />
+          </>
+        ) : (
+          <div className="flex flex-col items-end gap-2">
+            <Textarea
+              aria-label="댓글 고치기"
+              rows={3}
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+            />
+            <div className="flex gap-1">
+              <Button variant="ghost" size="sm" onClick={() => setDraft(null)}>
+                그만두기
+              </Button>
+              <Button
+                size="sm"
+                disabled={!draft.trim() || update.isPending}
+                onClick={() => update.mutate()}
+              >
+                저장하기
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -181,8 +193,7 @@ function CommentLikeButton({ postId, comment }: { postId: number; comment: Comme
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
-    mutationFn: () =>
-      comment.likedByMe ? cancelCommentLike(comment.id) : likeComment(comment.id),
+    mutationFn: () => (comment.likedByMe ? cancelCommentLike(comment.id) : likeComment(comment.id)),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['comments', postId] }),
   })
 

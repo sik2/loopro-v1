@@ -2,14 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { deletePost, fetchPost, type PostDetail } from '@/api/posts'
 import { useAuth } from '@/auth/use-auth'
+import { Markdown } from '@/components/Markdown'
 import { CommentSection } from '@/components/post/CommentSection'
 import { PostLikeButton } from '@/components/post/PostLikeButton'
-import { Markdown } from '@/components/Markdown'
+import { PostMeta } from '@/components/post/PostMeta'
 import { QueryState } from '@/components/QueryState'
+import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ApiError } from '@/lib/api-error'
-import { formatDate } from '@/lib/date'
+import { formatDateTime } from '@/lib/date'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { paths } from '@/routes/paths'
 
@@ -30,23 +32,44 @@ export function PostDetailPage() {
   return (
     <QueryState isPending={isPending} error={error}>
       {data && (
-        <article className="flex flex-col gap-6">
-          <header className="flex flex-col gap-3 border-b pb-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-semibold tracking-tight">{data.title}</h1>
-              {!data.published && <Badge>비발행 · 나만 보임</Badge>}
+        <article className="flex flex-col gap-10">
+          <header className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
+              {!data.published && (
+                <div>
+                  <Badge>비발행 · 나만 보임</Badge>
+                </div>
+              )}
+              <h1 className="text-[30px] leading-[1.3] font-semibold tracking-tight text-balance sm:text-[36px]">
+                {data.title}
+              </h1>
             </div>
-            <div className="flex items-center gap-3">
-              <p className="text-sm text-muted-foreground">
-                {data.authorNickname} · {formatDate(data.createDate)} · 조회 {data.viewCount}
-              </p>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Avatar nickname={data.authorNickname} />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium">{data.authorNickname}</span>
+                <span className="text-[13px] text-muted-foreground">
+                  {formatDateTime(data.createDate)}
+                  {data.modifyDate !== data.createDate &&
+                    ` · 고침 ${formatDateTime(data.modifyDate)}`}
+                </span>
+              </div>
+
               <PostActions post={data} />
             </div>
+
+            <PostMeta
+              className="border-y border-border py-3"
+              viewCount={data.viewCount}
+              likeCount={data.likeCount}
+              commentCount={data.commentCount}
+            />
           </header>
 
           <Markdown>{data.content}</Markdown>
 
-          <div className="flex justify-center border-t pt-6">
+          <div className="flex justify-center border-t border-border pt-8">
             <PostLikeButton post={data} />
           </div>
 
@@ -86,19 +109,17 @@ function PostActions({ post }: { post: PostDetail }) {
           <Link to={paths.postEdit(post.id)}>고치기</Link>
         </Button>
       )}
-      {canDelete && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-          disabled={mutation.isPending}
-          onClick={() => {
-            if (window.confirm('이 글을 지울까요? 되돌릴 수 없습니다.')) mutation.mutate()
-          }}
-        >
-          지우기
-        </Button>
-      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="hover:bg-destructive/10 hover:text-destructive"
+        disabled={mutation.isPending}
+        onClick={() => {
+          if (window.confirm('이 글을 지울까요? 되돌릴 수 없습니다.')) mutation.mutate()
+        }}
+      >
+        지우기
+      </Button>
     </div>
   )
 }

@@ -3,8 +3,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { queryClient } from '@/lib/query-client'
+import { paintTheme, resolveTheme } from '@/theme/theme'
 import { router } from '@/routes/router'
 import '@/index.css'
+
+// 그리기 전에 칠해야 반대 색이 한 번 번쩍이지 않는다.
+paintTheme(resolveTheme())
 
 const rootElement = document.getElementById('root')
 

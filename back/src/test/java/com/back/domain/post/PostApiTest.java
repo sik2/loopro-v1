@@ -48,7 +48,7 @@ class PostApiTest extends ApiTestSupport {
 	void 작성은_인증을_요구한다() throws Exception {
 		mockMvc.perform(post("/api/posts")
 						.contentType(MediaType.APPLICATION_JSON)
-						.content(json(Map.of("title", "제목", "content", "본문"))))
+						.content(json(Map.of("title", "제목", "content", "본문", "published", true))))
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -107,7 +107,7 @@ class PostApiTest extends ApiTestSupport {
 		return mockMvc.perform(post("/api/posts")
 				.header(HttpHeaders.AUTHORIZATION, bearer(author))
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(json(Map.of("title", title, "content", content))));
+				.content(json(Map.of("title", title, "content", content, "published", true))));
 	}
 
 	private long writtenPostId(Member author, String title, String content) throws Exception {

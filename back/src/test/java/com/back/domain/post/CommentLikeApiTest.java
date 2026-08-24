@@ -90,7 +90,7 @@ class CommentLikeApiTest extends ApiTestSupport {
 		String body = mockMvc.perform(post("/api/posts")
 						.header(HttpHeaders.AUTHORIZATION, bearer(author))
 						.contentType(MediaType.APPLICATION_JSON)
-						.content(json(Map.of("title", "글", "content", "본문"))))
+						.content(json(Map.of("title", "글", "content", "본문", "published", true))))
 				.andExpect(status().isCreated())
 				.andReturn().getResponse().getContentAsString();
 		return objectMapper.readTree(body).path("id").asLong();

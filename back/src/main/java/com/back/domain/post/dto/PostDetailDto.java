@@ -17,7 +17,9 @@ public record PostDetailDto(
 		long commentCount,
 		long likeCount,
 		/** 요청이 인증된 경우에만 참일 수 있다. 비로그인 요청에는 항상 거짓이다. */
-		boolean likedByMe
+		boolean likedByMe,
+		/** 거짓이면 작성자 본인에게만 보이는 글이다. */
+		boolean published
 ) {
 
 	public static PostDetailDto of(Post post, long commentCount, long likeCount, boolean likedByMe) {
@@ -32,7 +34,8 @@ public record PostDetailDto(
 				post.getViewCount(),
 				commentCount,
 				likeCount,
-				likedByMe
+				likedByMe,
+				post.isPublished()
 		);
 	}
 }

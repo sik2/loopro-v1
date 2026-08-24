@@ -53,7 +53,11 @@ public class PostService {
 		int pageIndex = Math.max(page, 1) - 1;
 		int pageSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
 
-		Page<Post> posts = postRepository.findAllBy(PageRequest.of(pageIndex, pageSize, LATEST_FIRST));
+		// 걸러내기는 여기서 한다. 발행되지 않은 글은 작성자 본인의 목록에만 실린다.
+		PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, LATEST_FIRST);
+		Page<Post> posts = viewer == null
+				? postRepository.findPublished(pageRequest)
+				: postRepository.findVisibleTo(viewer.id(), pageRequest);
 		List<Long> postIds = posts.map(Post::getId).toList();
 
 		Map<Long, Long> commentCounts = countMap(commentRepository.countByPostIds(postIds));
@@ -74,27 +78,27 @@ public class PostService {
 	 */
 	@Transactional
 	public PostDetailDto readDetail(long id, MemberPrincipal viewer) {
-		Post post = findById(id);
+		Post post = findVisibleById(id, viewer);
 		post.increaseViewCount();
 		return toDetail(post, viewer);
 	}
 
 	@Transactional
-	public PostDetailDto write(MemberPrincipal actor, String title, String content) {
+	public PostDetailDto write(MemberPrincipal actor, String title, String content, boolean published) {
 		Member author = memberService.findById(actor.id());
-		return toDetail(postRepository.save(Post.write(author, title, content)), actor);
+		return toDetail(postRepository.save(Post.write(author, title, content, published)), actor);
 	}
 
 	/** 수정은 작성자 본인만 가능하다. ADMIN도 남의 글은 수정할 수 없다 — 삭제는 관리지만 수정은 위조다. */
 	@Transactional
-	public PostDetailDto modify(MemberPrincipal actor, long postId, String title, String content) {
+	public PostDetailDto modify(MemberPrincipal actor, long postId, String title, String content, boolean published) {
 		Post post = findById(postId);
 
 		if (!post.isAuthor(actor.id())) {
 			throw ServiceException.forbidden("자기 Post만 수정할 수 있습니다.");
 		}
 
-		post.update(title, content);
+		post.update(title, content, published);
 		return toDetail(post, actor);
 	}
 
@@ -127,6 +131,21 @@ public class PostService {
 	public Post findById(long id) {
 		return postRepository.findWithAuthorById(id)
 				.orElseThrow(() -> ServiceException.notFound("존재하지 않는 Post입니다."));
+	}
+
+	/**
+	 * 볼 수 있는 사람에게만 돌려준다. 볼 수 없으면 403이 아니라 404다 —
+	 * 403은 "그 글이 있긴 하다"를 알려주기 때문이다.
+	 */
+	@Transactional(readOnly = true)
+	public Post findVisibleById(long id, MemberPrincipal viewer) {
+		Post post = findById(id);
+
+		if (!post.isVisibleTo(viewer == null ? null : viewer.id())) {
+			throw ServiceException.notFound("존재하지 않는 Post입니다.");
+		}
+
+		return post;
 	}
 
 	private PostDetailDto toDetail(Post post, MemberPrincipal viewer) {

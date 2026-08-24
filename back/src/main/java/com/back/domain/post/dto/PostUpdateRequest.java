@@ -9,6 +9,14 @@ public record PostUpdateRequest(
 		String title,
 
 		@NotBlank(message = "본문을 입력해 주세요.")
-		String content
+		String content,
+
+		/** 수정으로 발행/비발행을 전환한다. */
+		Boolean published
 ) {
+
+	/** 값이 오지 않으면 비발행으로 본다 — 실수로 공개되는 쪽보다 안전하다. */
+	public PostUpdateRequest {
+		published = published != null && published;
+	}
 }

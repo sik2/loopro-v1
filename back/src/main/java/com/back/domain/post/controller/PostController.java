@@ -57,7 +57,7 @@ public class PostController {
 			@AuthenticationPrincipal MemberPrincipal actor,
 			@Valid @RequestBody PostWriteRequest request
 	) {
-		return postService.write(actor, request.title(), request.content());
+		return postService.write(actor, request.title(), request.content(), request.published());
 	}
 
 	@PutMapping("/{id}")
@@ -67,7 +67,7 @@ public class PostController {
 			@PathVariable long id,
 			@Valid @RequestBody PostUpdateRequest request
 	) {
-		return postService.modify(actor, id, request.title(), request.content());
+		return postService.modify(actor, id, request.title(), request.content(), request.published());
 	}
 
 	@DeleteMapping("/{id}")

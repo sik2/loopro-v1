@@ -112,7 +112,7 @@ class PostPermissionApiTest extends ApiTestSupport {
 		String body = mockMvc.perform(post("/api/posts")
 						.header(HttpHeaders.AUTHORIZATION, bearer(author))
 						.contentType(MediaType.APPLICATION_JSON)
-						.content(json(Map.of("title", title, "content", content))))
+						.content(json(Map.of("title", title, "content", content, "published", true))))
 				.andExpect(status().isCreated())
 				.andReturn().getResponse().getContentAsString();
 
@@ -123,6 +123,6 @@ class PostPermissionApiTest extends ApiTestSupport {
 		return mockMvc.perform(put("/api/posts/{id}", postId)
 				.header(HttpHeaders.AUTHORIZATION, bearer(actor))
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(json(Map.of("title", title, "content", content))));
+				.content(json(Map.of("title", title, "content", content, "published", true))));
 	}
 }

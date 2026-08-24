@@ -66,6 +66,20 @@ export function PostForm({
         />
       </FormField>
 
+      <label className="flex items-start gap-3 rounded-md border p-3">
+        <input
+          type="checkbox"
+          className="mt-0.5 size-4 accent-primary"
+          {...register('published')}
+        />
+        <span className="flex flex-col gap-0.5">
+          <span className="text-sm font-medium">발행하기</span>
+          <span className="text-sm text-muted-foreground">
+            발행하지 않으면 목록에도 상세에도 나만 보입니다.
+          </span>
+        </span>
+      </label>
+
       <Button type="submit" className="self-start" disabled={isPending}>
         {isPending ? pendingLabel : submitLabel}
       </Button>

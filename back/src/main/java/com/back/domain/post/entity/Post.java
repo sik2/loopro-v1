@@ -41,15 +41,28 @@ public class Post extends BaseEntity {
 	@Column(nullable = false)
 	private long viewCount;
 
-	private Post(String title, String content, Member author) {
+	/**
+	 * 작성자 외의 사람에게 보이는 상태. 이 플랫폼의 유일한 공개 범위 개념이다 —
+	 * 지정 공유나 링크 공유는 없다.
+	 */
+	@Column(nullable = false)
+	private boolean published;
+
+	private Post(String title, String content, Member author, boolean published) {
 		this.title = title;
 		this.content = content;
 		this.author = author;
+		this.published = published;
 		this.viewCount = 0L;
 	}
 
-	public static Post write(Member author, String title, String content) {
-		return new Post(title, content, author);
+	public static Post write(Member author, String title, String content, boolean published) {
+		return new Post(title, content, author, published);
+	}
+
+	/** 작성자 본인이 아니면 발행되지 않은 글은 없는 것으로 다룬다. */
+	public boolean isVisibleTo(Long memberId) {
+		return published || (memberId != null && isAuthor(memberId));
 	}
 
 	/** 상세를 열 때마다 무조건 1 올린다. 그래서 상세 조회가 쓰기 트랜잭션이 된다. */
@@ -57,9 +70,10 @@ public class Post extends BaseEntity {
 		this.viewCount++;
 	}
 
-	public void update(String title, String content) {
+	public void update(String title, String content, boolean published) {
 		this.title = title;
 		this.content = content;
+		this.published = published;
 	}
 
 	public boolean isAuthor(Long memberId) {

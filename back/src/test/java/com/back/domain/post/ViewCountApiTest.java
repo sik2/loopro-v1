@@ -59,7 +59,7 @@ class ViewCountApiTest extends ApiTestSupport {
 		String body = mockMvc.perform(post("/api/posts")
 						.header(HttpHeaders.AUTHORIZATION, bearer(author))
 						.contentType(MediaType.APPLICATION_JSON)
-						.content(json(Map.of("title", "조회수 확인용", "content", "본문"))))
+						.content(json(Map.of("title", "조회수 확인용", "content", "본문", "published", true))))
 				.andExpect(status().isCreated())
 				.andReturn().getResponse().getContentAsString();
 

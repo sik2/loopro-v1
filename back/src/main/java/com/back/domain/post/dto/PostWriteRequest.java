@@ -9,6 +9,14 @@ public record PostWriteRequest(
 		String title,
 
 		@NotBlank(message = "본문을 입력해 주세요.")
-		String content
+		String content,
+
+		/** 작성 시점의 발행 여부. */
+		Boolean published
 ) {
+
+	/** 값이 오지 않으면 비발행으로 본다 — 실수로 공개되는 쪽보다 안전하다. */
+	public PostWriteRequest {
+		published = published != null && published;
+	}
 }

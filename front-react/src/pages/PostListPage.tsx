@@ -2,6 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import { fetchPostList } from '@/api/posts'
 import { QueryState } from '@/components/QueryState'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/date'
 import { paths } from '@/routes/paths'
@@ -32,7 +33,10 @@ export function PostListPage() {
             {data?.items.map((post) => (
               <li key={post.id}>
                 <Link to={paths.postDetail(post.id)} className="block py-4 hover:bg-accent/40">
-                  <p className="font-medium">{post.title}</p>
+                  <p className="flex items-center gap-2 font-medium">
+                    {post.title}
+                    {!post.published && <Badge>비발행</Badge>}
+                  </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {post.authorNickname} · {formatDate(post.createDate)} · 조회 {post.viewCount} · 댓글{' '}
                     {post.commentCount} · 추천 {post.likeCount}

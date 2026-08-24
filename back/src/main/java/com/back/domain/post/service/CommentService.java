@@ -30,8 +30,9 @@ public class CommentService {
 
 	@Transactional(readOnly = true)
 	public List<CommentDto> getListByPost(long postId, MemberPrincipal viewer) {
-		// 없는 Post의 댓글을 물으면 빈 목록이 아니라 404여야 한다.
-		postService.findById(postId);
+		// 없는 Post의 댓글을 물으면 빈 목록이 아니라 404다.
+		// 발행되지 않은 남의 글도 마찬가지로 404다 — 댓글 경로로 존재가 드러나면 안 된다.
+		postService.findVisibleById(postId, viewer);
 
 		List<Comment> comments = commentRepository.findByPost_IdOrderByCreateDateAscIdAsc(postId);
 		List<Long> commentIds = comments.stream().map(Comment::getId).toList();
@@ -50,7 +51,8 @@ public class CommentService {
 
 	@Transactional
 	public CommentDto write(MemberPrincipal actor, long postId, String content) {
-		Post post = postService.findById(postId);
+		// 발행되지 않은 Post에는 작성자 본인이 아니면 댓글을 달 수 없다.
+		Post post = postService.findVisibleById(postId, actor);
 		Member author = memberService.findById(actor.id());
 
 		return toDto(commentRepository.save(Comment.write(author, post, content)), actor);

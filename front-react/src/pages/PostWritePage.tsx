@@ -21,7 +21,7 @@ export function PostWritePage() {
       <h1 className="text-2xl font-semibold tracking-tight">글 쓰기</h1>
 
       <PostForm
-        defaultValues={{ title: '', content: '' }}
+        defaultValues={{ title: '', content: '', published: true }}
         submitLabel="올리기"
         pendingLabel="올리는 중…"
         isPending={mutation.isPending}

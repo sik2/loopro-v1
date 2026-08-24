@@ -41,7 +41,7 @@ export function PostEditPage() {
       <QueryState isPending={isPending} error={error}>
         {data && (
           <PostForm
-            defaultValues={{ title: data.title, content: data.content }}
+            defaultValues={{ title: data.title, content: data.content, published: data.published }}
             submitLabel="저장하기"
             pendingLabel="저장하는 중…"
             isPending={mutation.isPending}

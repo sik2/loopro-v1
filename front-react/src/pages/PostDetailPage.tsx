@@ -6,6 +6,7 @@ import { CommentSection } from '@/components/post/CommentSection'
 import { PostLikeButton } from '@/components/post/PostLikeButton'
 import { Markdown } from '@/components/Markdown'
 import { QueryState } from '@/components/QueryState'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ApiError } from '@/lib/api-error'
 import { formatDate } from '@/lib/date'
@@ -31,7 +32,10 @@ export function PostDetailPage() {
       {data && (
         <article className="flex flex-col gap-6">
           <header className="flex flex-col gap-3 border-b pb-6">
-            <h1 className="text-3xl font-semibold tracking-tight">{data.title}</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-semibold tracking-tight">{data.title}</h1>
+              {!data.published && <Badge>비발행 · 나만 보임</Badge>}
+            </div>
             <div className="flex items-center gap-3">
               <p className="text-sm text-muted-foreground">
                 {data.authorNickname} · {formatDate(data.createDate)} · 조회 {data.viewCount}

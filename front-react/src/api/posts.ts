@@ -10,6 +10,7 @@ export type PostListItem = {
   commentCount: number
   likeCount: number
   likedByMe: boolean
+  published: boolean
 }
 
 export type PostDetail = {
@@ -24,11 +25,13 @@ export type PostDetail = {
   commentCount: number
   likeCount: number
   likedByMe: boolean
+  published: boolean
 }
 
 export type PostWriteRequest = {
   title: string
   content: string
+  published: boolean
 }
 
 export function fetchPostList(page: number, size = 10) {

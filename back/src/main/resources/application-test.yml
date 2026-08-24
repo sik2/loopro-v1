@@ -22,3 +22,6 @@ app:
   cors:
     allowed-origins:
       - http://localhost:5173
+  jwt:
+    secret: loopro-test-signing-key-do-not-use-anywhere-else
+    expiration: 7d

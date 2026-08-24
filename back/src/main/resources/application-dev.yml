@@ -24,6 +24,10 @@ app:
   cors:
     allowed-origins:
       - http://localhost:5173
+  jwt:
+    # 개발 기본값. 배포 환경에서는 APP_JWT_SECRET 환경변수로 덮어쓴다.
+    secret: ${APP_JWT_SECRET:loopro-local-development-signing-key-change-me}
+    expiration: 7d
 
 logging:
   level:

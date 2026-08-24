@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { RequireAuth } from '@/auth/RequireAuth'
 import { RootLayout } from '@/components/layout/RootLayout'
 import { LoginPage } from '@/pages/LoginPage'
 import { MePage } from '@/pages/MePage'
@@ -17,11 +18,32 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <PostListPage /> },
       { path: 'p/:id', element: <PostDetailPage /> },
-      { path: 'p/:id/edit', element: <PostEditPage /> },
-      { path: 'write', element: <PostWritePage /> },
+      {
+        path: 'p/:id/edit',
+        element: (
+          <RequireAuth>
+            <PostEditPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: 'write',
+        element: (
+          <RequireAuth>
+            <PostWritePage />
+          </RequireAuth>
+        ),
+      },
       { path: 'login', element: <LoginPage /> },
       { path: 'signup', element: <SignupPage /> },
-      { path: 'me', element: <MePage /> },
+      {
+        path: 'me',
+        element: (
+          <RequireAuth>
+            <MePage />
+          </RequireAuth>
+        ),
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

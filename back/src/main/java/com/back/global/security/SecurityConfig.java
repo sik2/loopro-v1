@@ -1,5 +1,6 @@
 package com.back.global.security;
 
+import com.back.global.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -18,8 +20,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 /**
- * 스캐폴딩 단계의 보안 설정: 모든 요청을 허용하고, CSRF는 끄고, 세션은 stateless다.
- * 인증 요구는 티켓 04에서 붙는다.
+ * 접근 정책: 가입·로그인과 읽기 요청은 인증 없이, 나머지 쓰기 요청은 인증을 요구한다.
+ * 세션은 stateless이고 CSRF 보호는 끈다 — 상태를 서버에 두지 않기 때문이다.
  */
 @Configuration
 @EnableWebSecurity
@@ -27,6 +29,8 @@ import java.util.List;
 public class SecurityConfig {
 
 	private final CorsProperties corsProperties;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final ProblemDetailAuthenticationEntryPoint problemDetailHandler;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,7 +43,19 @@ public class SecurityConfig {
 				// h2-console은 frame 안에서 열리므로 same-origin frame을 허용한다.
 				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						.requestMatchers("/h2-console/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+						.permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/members", "/api/auth/login").permitAll()
+						// 내 정보는 읽기지만 내가 누구인지 알아야 답할 수 있다.
+						.requestMatchers("/api/members/me").authenticated()
+						.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+						.anyRequest().authenticated())
+				.exceptionHandling(handling -> handling
+						.authenticationEntryPoint(problemDetailHandler)
+						.accessDeniedHandler(problemDetailHandler))
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

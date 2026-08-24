@@ -29,6 +29,21 @@ cd back && ./gradlew bootRun
 
 개발 프로파일은 `back/db_dev.mv.db` 파일에 데이터를 남긴다. 껐다 켜도 데이터가 유지된다.
 
+빈 DB로 처음 띄우면 샘플 데이터(`Member` 5, `Post` 5, `Comment` 5)가 들어간다.
+이미 `Member`가 있으면 건너뛰므로 재시작해도 불어나지 않는다.
+처음부터 다시 보려면 `back/db_dev.mv.db`를 지우고 띄운다.
+
+| Username | Nickname | Role    |
+| -------- | -------- | ------- |
+| `admin`  | 관리자   | `ADMIN` |
+| `gureum` | 구름     | `USER`  |
+| `baram`  | 바람     | `USER`  |
+| `namu`   | 나무     | `USER`  |
+| `byeol`  | 별       | `USER`  |
+
+비밀번호는 모두 `password123`이다. `gureum`에게는 비발행 글이 하나 있어서,
+로그인 여부에 따라 목록이 달라지는 것을 바로 확인할 수 있다.
+
 ### front-react
 
 ```bash

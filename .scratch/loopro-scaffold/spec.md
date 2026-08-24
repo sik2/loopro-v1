@@ -1,6 +1,6 @@
 # Loopro 스캐폴딩
 
-Status: ready-for-agent
+Status: done
 
 ## Problem Statement
 

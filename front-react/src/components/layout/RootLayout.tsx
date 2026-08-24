@@ -20,7 +20,7 @@ export function RootLayout() {
 
         <footer className="mt-16 border-t border-border">
           <div className="mx-auto w-full max-w-3xl px-5 py-8 text-[13px] text-muted-foreground sm:px-6">
-            Loopro — 교안을 쓰고 나누는 곳
+            Loopro — 콘텐츠를 쓰고 나누는 곳
           </div>
         </footer>
       </div>

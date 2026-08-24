@@ -12,7 +12,7 @@ public class OpenApiConfig {
 	public OpenAPI looproOpenApi() {
 		return new OpenAPI().info(new Info()
 				.title("Loopro API")
-				.description("블로그 기능을 기반으로 교안을 작성·공유하는 플랫폼")
+				.description("블로그 기능을 기반으로 콘텐츠를 작성·공유하는 플랫폼")
 				.version("v1"));
 	}
 }

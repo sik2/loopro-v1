@@ -1,6 +1,6 @@
 # Loopro
 
-블로그 기능을 기반으로 **교안**을 작성·공유하는 플랫폼. back과 front가 공유하는 domain language를 정의한다.
+블로그 기능을 기반으로 **콘텐츠**를 작성·공유하는 플랫폼. back과 front가 공유하는 domain language를 정의한다.
 
 ## Language
 

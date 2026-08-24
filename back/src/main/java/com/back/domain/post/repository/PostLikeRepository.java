@@ -2,6 +2,7 @@ package com.back.domain.post.repository;
 
 import com.back.domain.post.entity.PostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -29,5 +30,10 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
 	@Query("select l.post.id from PostLike l where l.member.id = :memberId and l.post.id in :postIds")
 	List<Long> findLikedPostIds(@Param("memberId") Long memberId, @Param("postIds") Collection<Long> postIds);
 
-	List<PostLike> findByPost_Id(Long postId);
+	/** Post가 사라질 때 그 Post의 추천 기록을 한 번에 지운다. */
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("delete from PostLike l where l.post.id = :postId")
+	void deleteByPostId(@Param("postId") Long postId);
+
+	long countByPost_IdIn(Collection<Long> postIds);
 }

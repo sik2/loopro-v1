@@ -5,6 +5,7 @@ import com.back.domain.member.service.MemberService;
 import com.back.domain.post.dto.PostDetailDto;
 import com.back.domain.post.dto.PostListItemDto;
 import com.back.domain.post.entity.Post;
+import com.back.domain.post.repository.CommentLikeRepository;
 import com.back.domain.post.repository.CommentRepository;
 import com.back.domain.post.repository.IdCount;
 import com.back.domain.post.repository.PostLikeRepository;
@@ -42,6 +43,7 @@ public class PostService {
 
 	private final PostRepository postRepository;
 	private final CommentRepository commentRepository;
+	private final CommentLikeRepository commentLikeRepository;
 	private final PostLikeRepository postLikeRepository;
 	private final MemberService memberService;
 
@@ -96,7 +98,12 @@ public class PostService {
 		return toDetail(post, actor);
 	}
 
-	/** 삭제는 작성자 본인과 ADMIN이 할 수 있다. */
+	/**
+	 * 삭제는 작성자 본인과 ADMIN이 할 수 있다.
+	 *
+	 * <p>딸린 것들을 안쪽부터 지운다: 댓글의 추천 → 댓글 → 글의 추천 → 글.
+	 * 전부 물리 삭제다. 소프트 삭제를 쓰면 모든 조회에 필터 조건이 붙고 유일 제약과도 충돌한다.
+	 */
 	@Transactional
 	public void delete(MemberPrincipal actor, long postId) {
 		Post post = findById(postId);
@@ -105,7 +112,15 @@ public class PostService {
 			throw ServiceException.forbidden("자기 Post만 삭제할 수 있습니다.");
 		}
 
-		postRepository.delete(post);
+		List<Long> commentIds = commentRepository.findIdsByPostId(postId);
+		if (!commentIds.isEmpty()) {
+			commentLikeRepository.deleteByCommentIds(commentIds);
+		}
+		commentRepository.deleteByPostId(postId);
+		postLikeRepository.deleteByPostId(postId);
+
+		// 위의 벌크 삭제가 영속성 컨텍스트를 비우므로 엔티티가 아니라 식별자로 지운다.
+		postRepository.deleteById(postId);
 	}
 
 	@Transactional(readOnly = true)

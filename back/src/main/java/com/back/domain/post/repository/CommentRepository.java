@@ -3,6 +3,7 @@ package com.back.domain.post.repository;
 import com.back.domain.post.entity.Comment;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -29,5 +30,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 			""")
 	List<IdCount> countByPostIds(@Param("postIds") Collection<Long> postIds);
 
-	List<Comment> findByPost_Id(Long postId);
+	@Query("select c.id from Comment c where c.post.id = :postId")
+	List<Long> findIdsByPostId(@Param("postId") Long postId);
+
+	/** Post가 사라질 때 딸린 Comment를 한 번에 지운다. 물리 삭제다. */
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("delete from Comment c where c.post.id = :postId")
+	void deleteByPostId(@Param("postId") Long postId);
 }

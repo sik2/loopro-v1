@@ -69,7 +69,7 @@ public class CommentService {
 		return toDto(comment, actor);
 	}
 
-	/** 삭제는 작성자 본인과 ADMIN이 할 수 있다. */
+	/** 삭제는 작성자 본인과 ADMIN이 할 수 있다. 딸린 추천 기록도 함께 사라진다. */
 	@Transactional
 	public void delete(MemberPrincipal actor, long commentId) {
 		Comment comment = findById(commentId);
@@ -78,7 +78,8 @@ public class CommentService {
 			throw ServiceException.forbidden("자기 Comment만 삭제할 수 있습니다.");
 		}
 
-		commentRepository.delete(comment);
+		commentLikeRepository.deleteByCommentIds(List.of(commentId));
+		commentRepository.deleteById(commentId);
 	}
 
 	@Transactional(readOnly = true)

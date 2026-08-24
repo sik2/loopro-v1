@@ -2,6 +2,9 @@ package com.back.global.testsupport;
 
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
+import com.back.domain.post.repository.CommentLikeRepository;
+import com.back.domain.post.repository.CommentRepository;
+import com.back.domain.post.repository.PostLikeRepository;
 import com.back.global.security.jwt.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +43,19 @@ public abstract class ApiTestSupport {
 
 	@Autowired
 	protected JwtProvider jwtProvider;
+
+	/**
+	 * 고아 데이터가 남았는지는 HTTP로 관찰할 수 없다. 연쇄 삭제 테스트만
+	 * 예외적으로 이 리포지토리들을 <b>관찰용</b>으로 쓴다. 행위는 여전히 HTTP 요청이다.
+	 */
+	@Autowired
+	protected CommentRepository commentRepository;
+
+	@Autowired
+	protected PostLikeRepository postLikeRepository;
+
+	@Autowired
+	protected CommentLikeRepository commentLikeRepository;
 
 	protected String json(Object value) {
 		try {

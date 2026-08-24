@@ -2,6 +2,7 @@ package com.back.domain.post.repository;
 
 import com.back.domain.post.entity.CommentLike;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -31,9 +32,10 @@ public interface CommentLikeRepository extends JpaRepository<CommentLike, Long> 
 	List<Long> findLikedCommentIds(@Param("memberId") Long memberId,
 	                               @Param("commentIds") Collection<Long> commentIds);
 
+	/** Comment가 사라질 때 그 Comment의 추천 기록을 한 번에 지운다. */
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("delete from CommentLike l where l.comment.id in :commentIds")
-	@org.springframework.data.jpa.repository.Modifying(clearAutomatically = true, flushAutomatically = true)
 	void deleteByCommentIds(@Param("commentIds") Collection<Long> commentIds);
 
-	List<CommentLike> findByComment_Id(Long commentId);
+	long countByComment_IdIn(Collection<Long> commentIds);
 }

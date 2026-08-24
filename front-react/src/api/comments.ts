@@ -7,6 +7,8 @@ export type CommentDto = {
   authorNickname: string
   createDate: string
   modifyDate: string
+  likeCount: number
+  likedByMe: boolean
 }
 
 export function fetchComments(postId: number) {
@@ -26,4 +28,12 @@ export function updateComment(commentId: number, content: string) {
 
 export function deleteComment(commentId: number) {
   return apiFetch<void>(`/api/comments/${commentId}`, { method: 'DELETE' })
+}
+
+export function likeComment(commentId: number) {
+  return apiFetch<void>(`/api/comments/${commentId}/like`, { method: 'PUT' })
+}
+
+export function cancelCommentLike(commentId: number) {
+  return apiFetch<void>(`/api/comments/${commentId}/like`, { method: 'DELETE' })
 }

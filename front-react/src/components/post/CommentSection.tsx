@@ -1,14 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
+  cancelCommentLike,
   deleteComment,
   fetchComments,
+  likeComment,
   updateComment,
   writeComment,
   type CommentDto,
 } from '@/api/comments'
 import { useAuth } from '@/auth/use-auth'
+import { LikeButton } from '@/components/post/LikeButton'
 import { QueryState } from '@/components/QueryState'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -142,7 +145,10 @@ function CommentItem({ postId, comment }: { postId: number; comment: CommentDto 
       </div>
 
       {draft === null ? (
-        <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+        <>
+          <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+          <CommentLikeButton postId={postId} comment={comment} />
+        </>
       ) : (
         <div className="flex flex-col items-end gap-2">
           <Textarea
@@ -166,5 +172,30 @@ function CommentItem({ postId, comment }: { postId: number; comment: CommentDto 
         </div>
       )}
     </li>
+  )
+}
+
+function CommentLikeButton({ postId, comment }: { postId: number; comment: CommentDto }) {
+  const { member } = useAuth()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      comment.likedByMe ? cancelCommentLike(comment.id) : likeComment(comment.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['comments', postId] }),
+  })
+
+  return (
+    <div className="flex">
+      <LikeButton
+        size="sm"
+        count={comment.likeCount}
+        likedByMe={comment.likedByMe}
+        canLike={Boolean(member)}
+        isPending={mutation.isPending}
+        onToggle={() => (member ? mutation.mutate() : navigate(paths.login))}
+      />
+    </div>
   )
 }

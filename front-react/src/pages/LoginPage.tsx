@@ -13,8 +13,12 @@ import { Input } from '@/components/ui/input'
 import { applyApiFieldErrors } from '@/lib/form'
 import { paths } from '@/routes/paths'
 
+/**
+ * 화면 표기는 `아이디`, 코드와 API의 이름은 `username`이다(CONTEXT.md).
+ * 사람에게 보여줄 말은 전부 여기 모여 있다 — back의 검증 메시지에는 항목 이름이 없다.
+ */
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username을 입력해 주세요.'),
+  username: z.string().min(1, '아이디를 입력해 주세요.'),
   password: z.string().min(1, '비밀번호를 입력해 주세요.'),
 })
 
@@ -50,7 +54,7 @@ export function LoginPage() {
     <Card className="mx-auto max-w-md">
       <CardHeader>
         <CardTitle>로그인</CardTitle>
-        <CardDescription>Username과 비밀번호로 로그인합니다.</CardDescription>
+        <CardDescription>아이디와 비밀번호로 로그인합니다.</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -64,7 +68,7 @@ export function LoginPage() {
         >
           <FormAlert message={formError} />
 
-          <FormField id="username" label="Username" error={errors.username?.message}>
+          <FormField id="username" label="아이디" error={errors.username?.message}>
             <Input
               id="username"
               autoComplete="username"

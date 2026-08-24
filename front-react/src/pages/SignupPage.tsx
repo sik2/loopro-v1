@@ -13,21 +13,24 @@ import { Input } from '@/components/ui/input'
 import { applyApiFieldErrors } from '@/lib/form'
 import { paths } from '@/routes/paths'
 
-/** back의 SignupRequest 검증 규칙과 맞물린다. 한쪽만 고치면 어긋난다. */
+/**
+ * back의 SignupRequest 검증 규칙과 맞물린다. 한쪽만 고치면 어긋난다.
+ * 화면 표기는 `아이디`·`닉네임`, 코드와 API의 이름은 `username`·`nickname`이다(CONTEXT.md).
+ */
 const signupSchema = z.object({
   username: z
     .string()
-    .min(3, 'Username은 3자 이상 30자 이하여야 합니다.')
-    .max(30, 'Username은 3자 이상 30자 이하여야 합니다.')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Username은 영문, 숫자, 밑줄만 쓸 수 있습니다.'),
+    .min(3, '아이디는 3자 이상 30자 이하여야 합니다.')
+    .max(30, '아이디는 3자 이상 30자 이하여야 합니다.')
+    .regex(/^[a-zA-Z0-9_]+$/, '아이디는 영문, 숫자, 밑줄만 쓸 수 있습니다.'),
   password: z
     .string()
     .min(8, '비밀번호는 8자 이상 64자 이하여야 합니다.')
     .max(64, '비밀번호는 8자 이상 64자 이하여야 합니다.'),
   nickname: z
     .string()
-    .min(2, 'Nickname은 2자 이상 30자 이하여야 합니다.')
-    .max(30, 'Nickname은 2자 이상 30자 이하여야 합니다.'),
+    .min(2, '닉네임은 2자 이상 30자 이하여야 합니다.')
+    .max(30, '닉네임은 2자 이상 30자 이하여야 합니다.'),
 })
 
 type SignupForm = z.infer<typeof signupSchema>
@@ -58,7 +61,7 @@ export function SignupPage() {
     <Card className="mx-auto max-w-md">
       <CardHeader>
         <CardTitle>회원가입</CardTitle>
-        <CardDescription>Username으로 로그인하고, Nickname으로 사람들에게 보입니다.</CardDescription>
+        <CardDescription>아이디로 로그인하고, 닉네임으로 사람들에게 보입니다.</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -74,7 +77,7 @@ export function SignupPage() {
 
           <FormField
             id="username"
-            label="Username"
+            label="아이디"
             error={errors.username?.message}
             hint="영문, 숫자, 밑줄 3~30자. 로그인할 때만 쓰이고 화면에는 보이지 않습니다."
           >
@@ -103,7 +106,7 @@ export function SignupPage() {
 
           <FormField
             id="nickname"
-            label="Nickname"
+            label="닉네임"
             error={errors.nickname?.message}
             hint="2~30자. 다른 사람에게 보이는 이름입니다."
           >

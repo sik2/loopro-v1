@@ -18,10 +18,10 @@ public class MemberService {
 	@Transactional
 	public Member join(String username, String rawPassword, String nickname) {
 		if (memberRepository.existsByUsername(username)) {
-			throw ServiceException.conflictOnField("username", "이미 사용 중인 Username입니다.");
+			throw ServiceException.conflictOnField("username", "이미 사용 중입니다.");
 		}
 		if (memberRepository.existsByNickname(nickname)) {
-			throw ServiceException.conflictOnField("nickname", "이미 사용 중인 Nickname입니다.");
+			throw ServiceException.conflictOnField("nickname", "이미 사용 중입니다.");
 		}
 
 		return memberRepository.save(Member.join(username, passwordEncoder.encode(rawPassword), nickname));

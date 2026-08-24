@@ -34,7 +34,7 @@ export function PostListPage() {
                 <Link to={paths.postDetail(post.id)} className="block py-4 hover:bg-accent/40">
                   <p className="font-medium">{post.title}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {post.authorNickname} · {formatDate(post.createDate)}
+                    {post.authorNickname} · {formatDate(post.createDate)} · 조회 {post.viewCount}
                   </p>
                 </Link>
               </li>

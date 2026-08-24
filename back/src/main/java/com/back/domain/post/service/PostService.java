@@ -46,6 +46,17 @@ public class PostService {
 				.orElseThrow(() -> ServiceException.notFound("존재하지 않는 Post입니다."));
 	}
 
+	/**
+	 * 상세 조회. ViewCount를 1 올리므로 쓰기 트랜잭션이다 — 조회할 때마다 UPDATE가 한 번 나간다.
+	 * 트래픽이 늘면 가장 먼저 문제가 될 지점이다.
+	 */
+	@Transactional
+	public Post readDetail(long id) {
+		Post post = findById(id);
+		post.increaseViewCount();
+		return post;
+	}
+
 	/** 수정은 작성자 본인만 가능하다. ADMIN도 남의 글은 수정할 수 없다 — 삭제는 관리지만 수정은 위조다. */
 	@Transactional
 	public Post modify(MemberPrincipal actor, long postId, String title, String content) {

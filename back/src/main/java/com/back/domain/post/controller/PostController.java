@@ -42,9 +42,9 @@ public class PostController {
 	}
 
 	@GetMapping("/{id}")
-	@Operation(summary = "글 상세")
+	@Operation(summary = "글 상세", description = "열 때마다 ViewCount가 1 오른다.")
 	public PostDetailDto detail(@PathVariable long id) {
-		return PostDetailDto.from(postService.findById(id));
+		return PostDetailDto.from(postService.readDetail(id));
 	}
 
 	@PostMapping

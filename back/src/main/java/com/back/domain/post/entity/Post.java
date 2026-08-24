@@ -34,14 +34,27 @@ public class Post extends BaseEntity {
 	@JoinColumn(name = "author_id", nullable = false)
 	private Member author;
 
+	/**
+	 * 상세 조회 요청이 발생한 횟수. 같은 사람의 반복 조회를 구분하지 않으므로
+	 * 고유 독자 수가 아니다.
+	 */
+	@Column(nullable = false)
+	private long viewCount;
+
 	private Post(String title, String content, Member author) {
 		this.title = title;
 		this.content = content;
 		this.author = author;
+		this.viewCount = 0L;
 	}
 
 	public static Post write(Member author, String title, String content) {
 		return new Post(title, content, author);
+	}
+
+	/** 상세를 열 때마다 무조건 1 올린다. 그래서 상세 조회가 쓰기 트랜잭션이 된다. */
+	public void increaseViewCount() {
+		this.viewCount++;
 	}
 
 	public void update(String title, String content) {

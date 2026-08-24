@@ -9,7 +9,8 @@ public record PostListItemDto(
 		Long id,
 		String title,
 		String authorNickname,
-		LocalDateTime createDate
+		LocalDateTime createDate,
+		long viewCount
 ) {
 
 	public static PostListItemDto from(Post post) {
@@ -17,7 +18,8 @@ public record PostListItemDto(
 				post.getId(),
 				post.getTitle(),
 				post.getAuthor().getNickname(),
-				post.getCreateDate()
+				post.getCreateDate(),
+				post.getViewCount()
 		);
 	}
 }

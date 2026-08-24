@@ -32,7 +32,7 @@ export function PostDetailPage() {
             <h1 className="text-3xl font-semibold tracking-tight">{data.title}</h1>
             <div className="flex items-center gap-3">
               <p className="text-sm text-muted-foreground">
-                {data.authorNickname} · {formatDate(data.createDate)}
+                {data.authorNickname} · {formatDate(data.createDate)} · 조회 {data.viewCount}
               </p>
               <PostActions post={data} />
             </div>

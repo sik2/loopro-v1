@@ -86,9 +86,7 @@ describe('회원가입', () => {
     ))
 
     const { user } = renderApp(<SignupPage />, { path: '/signup', route: '/signup' })
-    await user.type(screen.getByLabelText('아이디'), 'gureum')
-    await user.type(screen.getByLabelText('비밀번호'), 'password123')
-    await user.type(screen.getByLabelText('닉네임'), '구름')
+    await fillSignup(user, { password: 'password123', passwordConfirm: 'password123' })
     await user.click(screen.getByRole('button', { name: '가입하기' }))
 
     const alerts = await screen.findAllByRole('alert')
@@ -103,12 +101,79 @@ describe('회원가입', () => {
     }))
 
     const { user } = renderApp(<SignupPage />, { path: '/signup', route: '/signup' })
-    await user.type(screen.getByLabelText('아이디'), 'ab')          // 3자 미만
-    await user.type(screen.getByLabelText('비밀번호'), 'short')      // 8자 미만
-    await user.type(screen.getByLabelText('닉네임'), '가')           // 2자 미만
+    await fillSignup(user, {
+      username: 'ab',              // 3자 미만
+      password: 'short',           // 8자 미만
+      passwordConfirm: 'short',
+      nickname: '가',               // 2자 미만
+    })
     await user.click(screen.getByRole('button', { name: '가입하기' }))
 
     expect(await screen.findAllByRole('alert')).toHaveLength(3)
     expect(called).toBe(false)
   })
+
+  it('비밀번호와 확인이 다르면 확인 칸에 알려주고 보내지 않는다', async () => {
+    let called = false
+    server.use(http.post(`${API}/api/members`, () => {
+      called = true
+      return HttpResponse.json(GUREUM, { status: 201 })
+    }))
+
+    const { user } = renderApp(<SignupPage />, { path: '/signup', route: '/signup' })
+    await fillSignup(user, { password: 'password123', passwordConfirm: 'password124' })
+    await user.click(screen.getByRole('button', { name: '가입하기' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('비밀번호가 서로 다릅니다.')
+    expect(screen.getByLabelText('비밀번호 확인')).toHaveAttribute('aria-invalid', 'true')
+    expect(called).toBe(false)
+  })
+
+  it('확인 칸이 비어도 보내지 않는다', async () => {
+    let called = false
+    server.use(http.post(`${API}/api/members`, () => {
+      called = true
+      return HttpResponse.json(GUREUM, { status: 201 })
+    }))
+
+    const { user } = renderApp(<SignupPage />, { path: '/signup', route: '/signup' })
+    await fillSignup(user, { password: 'password123', passwordConfirm: '' })
+    await user.click(screen.getByRole('button', { name: '가입하기' }))
+
+    await screen.findByRole('alert')
+    expect(called).toBe(false)
+  })
+
+  it('확인용 값은 서버로 보내지 않는다', async () => {
+    let sent: Record<string, unknown> | undefined
+    server.use(http.post(`${API}/api/members`, async ({ request }) => {
+      sent = (await request.json()) as Record<string, unknown>
+      return HttpResponse.json(GUREUM, { status: 201 })
+    }))
+
+    const { user } = renderApp(<SignupPage />, { path: '/signup', route: '/signup' })
+    await fillSignup(user, { password: 'password123', passwordConfirm: 'password123' })
+    await user.click(screen.getByRole('button', { name: '가입하기' }))
+
+    await waitFor(() => expect(sent).toBeDefined())
+    expect(sent).toEqual({ username: 'gureum', password: 'password123', nickname: '구름' })
+    expect(sent).not.toHaveProperty('passwordConfirm')
+  })
 })
+
+type SignupInput = {
+  username?: string
+  password?: string
+  passwordConfirm?: string
+  nickname?: string
+}
+
+async function fillSignup(
+  user: ReturnType<typeof renderApp>['user'],
+  { username = 'gureum', password = 'password123', passwordConfirm = password, nickname = '구름' }: SignupInput,
+) {
+  await user.type(screen.getByLabelText('아이디'), username)
+  if (password) await user.type(screen.getByLabelText('비밀번호'), password)
+  if (passwordConfirm) await user.type(screen.getByLabelText('비밀번호 확인'), passwordConfirm)
+  await user.type(screen.getByLabelText('닉네임'), nickname)
+}

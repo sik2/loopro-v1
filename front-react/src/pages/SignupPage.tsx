@@ -27,14 +27,24 @@ const signupSchema = z.object({
     .string()
     .min(8, '비밀번호는 8자 이상 64자 이하여야 합니다.')
     .max(64, '비밀번호는 8자 이상 64자 이하여야 합니다.'),
+  /**
+   * 비밀번호 확인은 화면에만 있다. back으로 보내지 않는다 — 저장할 값도 아니고,
+   * 화면을 거치지 않은 요청은 자기가 무엇을 보냈는지 이미 알기 때문에 막을 것이 없다.
+   * 오타를 잡는 장치이지 보안 장치가 아니다.
+   */
+  passwordConfirm: z.string().min(1, '비밀번호를 한 번 더 입력해 주세요.'),
   nickname: z
     .string()
     .min(2, '닉네임은 2자 이상 30자 이하여야 합니다.')
     .max(30, '닉네임은 2자 이상 30자 이하여야 합니다.'),
+}).refine((v) => v.password === v.passwordConfirm, {
+  message: '비밀번호가 서로 다릅니다.',
+  path: ['passwordConfirm'],
 })
 
 type SignupForm = z.infer<typeof signupSchema>
 
+/** 서버가 오류를 붙일 수 있는 항목. `passwordConfirm`은 서버가 모르는 값이라 뺀다. */
 const FIELDS = ['username', 'password', 'nickname'] as const
 
 export function SignupPage() {
@@ -48,11 +58,13 @@ export function SignupPage() {
     formState: { errors, isSubmitting },
   } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { username: '', password: '', nickname: '' },
+    defaultValues: { username: '', password: '', passwordConfirm: '', nickname: '' },
   })
 
   const mutation = useMutation({
-    mutationFn: signup,
+    // 확인용 값은 여기서 떨어뜨린다. 요청 본문에 실리지 않는다.
+    mutationFn: ({ username, password, nickname }: SignupForm) =>
+      signup({ username, password, nickname }),
     onSuccess: () => navigate(paths.login, { replace: true }),
     onError: (error) => setFormError(applyApiFieldErrors(error, setError, FIELDS)),
   })
@@ -101,6 +113,21 @@ export function SignupPage() {
               autoComplete="new-password"
               aria-invalid={Boolean(errors.password)}
               {...register('password')}
+            />
+          </FormField>
+
+          <FormField
+            id="passwordConfirm"
+            label="비밀번호 확인"
+            error={errors.passwordConfirm?.message}
+            hint="같은 비밀번호를 한 번 더 입력하세요."
+          >
+            <Input
+              id="passwordConfirm"
+              type="password"
+              autoComplete="new-password"
+              aria-invalid={Boolean(errors.passwordConfirm)}
+              {...register('passwordConfirm')}
             />
           </FormField>
 

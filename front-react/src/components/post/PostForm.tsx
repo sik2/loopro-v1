@@ -8,6 +8,7 @@ import { Markdown } from '@/components/Markdown'
 import { POST_FIELDS, postSchema, type PostFormValues } from '@/components/post/post-schema'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { applyApiFieldErrors } from '@/lib/form'
 import { cn } from '@/lib/utils'
@@ -63,7 +64,8 @@ export function PostForm({
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-sm font-medium">본문</span>
+          {/* 진짜 label이어야 한다. span으로 두면 스크린리더가 이 칸을 이름 없는 상자로 읽는다. */}
+          <Label htmlFor="content">본문</Label>
 
           {/* 넓은 화면에서는 둘 다 보이므로 이 전환기가 필요 없다. */}
           <div className="flex items-center gap-0.5 lg:hidden">

@@ -69,7 +69,9 @@ cd back && ./gradlew test
 ```
 
 ```bash
-cd front-react && npx tsc -b && npm run lint
+cd front-react && npm test && npx tsc -b && npm run lint
 ```
 
-`front-react`에는 자동 테스트를 두지 않는다. 수동으로 확인한다.
+front 테스트는 화면을 세우고 사용자처럼 만진다. back을 띄우지 않아도 돌아간다 —
+네트워크는 MSW가 가로챈다. 왜 그렇게 했는지는
+[ADR-0006](docs/adr/0006-front의-seam은-화면-하나다.md)에 있다.
